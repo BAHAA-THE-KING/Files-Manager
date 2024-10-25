@@ -25,4 +25,4 @@ jobs:
             key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
             restore-keys: ${{ runner.os }}-m2
       - run: chmod +x ./mvnw
-      - run: zh ./mvnw clean package
+      - run: ./mvnw clean package
