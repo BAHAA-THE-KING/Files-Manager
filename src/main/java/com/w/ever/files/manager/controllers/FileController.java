@@ -16,8 +16,8 @@ public class FileController {
     }
 
     @GetMapping("/file/{id}")
-    public ResponseEntity<FileModel> file(@PathVariable String id) {
-        FileModel data = fileService.get(id);
+    public ResponseEntity<FileModel> file(@PathVariable Integer id) {
+        FileModel data = fileService.getFile(id);
 
         HttpHeaders headers = new HttpHeaders();
 
@@ -34,8 +34,8 @@ public class FileController {
     }
 
     @PostMapping("/file/{id}")
-    public ResponseEntity<FileModel> uploadFile(@RequestBody FileModel file, @PathVariable String id) {
-        FileModel data = fileService.createFile(file, id);
+    public ResponseEntity<FileModel> uploadFile(@RequestBody FileModel file, @PathVariable Integer id) {
+        FileModel data = fileService.updateFile(file, id);
 
         HttpHeaders headers = new HttpHeaders();
 

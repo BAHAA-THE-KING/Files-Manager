@@ -1,24 +1,34 @@
 package com.w.ever.files.manager.services;
 
 import com.w.ever.files.manager.models.FileModel;
+import com.w.ever.files.manager.repositories.FileRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
-import java.util.UUID;
+import java.util.Optional;
 
 @Service
 public class FileService {
-    public FileModel get(String id) {
-        return new FileModel(id, "", "");
+    private final FileRepository fileRepository;
+
+    public FileService(FileRepository fileRepository) {
+        this.fileRepository = fileRepository;
+    }
+
+    public FileModel getFile(Integer id) {
+        Optional<FileModel> fileModel = fileRepository.findById(id);
+        return fileModel.orElse(null);
     }
 
     public FileModel createFile(FileModel file) {
-        file.setId(UUID.randomUUID().toString());
-
-        return file;
+        return fileRepository.save(file);
     }
 
-    public FileModel createFile(FileModel file, String id) {
-        return file;
+    public FileModel updateFile(FileModel file, Integer id) {
+        Optional<FileModel> fileModel = fileRepository.findById(id);
+        if (fileModel.isEmpty()) throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        return fileRepository.save(file);
     }
 
     public void delete(String id) {
