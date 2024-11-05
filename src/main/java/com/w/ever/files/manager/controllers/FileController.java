@@ -3,9 +3,6 @@ package com.w.ever.files.manager.controllers;
 import com.w.ever.files.manager.models.FileModel;
 import com.w.ever.files.manager.services.FileService;
 import com.w.ever.files.manager.services.NotificationsService;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,30 +16,18 @@ public class FileController {
     }
 
     @GetMapping("/file/{id}")
-    public ResponseEntity<FileModel> file(@PathVariable Integer id) {
-        FileModel data = fileService.getFile(id);
-
-        HttpHeaders headers = new HttpHeaders();
-
-        return new ResponseEntity<>(data, headers, HttpStatus.OK);
+    public FileModel file(@PathVariable Integer id) {
+        return fileService.getFile(id);
     }
 
     @PostMapping("/file")
-    public ResponseEntity<FileModel> uploadFile(@RequestBody FileModel file) {
-        FileModel data = fileService.createFile(file);
-
-        HttpHeaders headers = new HttpHeaders();
-
-        return new ResponseEntity<>(data, headers, HttpStatus.OK);
+    public FileModel uploadFile(@RequestBody FileModel file) {
+        return fileService.createFile(file);
     }
 
     @PostMapping("/file/{id}")
-    public ResponseEntity<FileModel> uploadFile(@RequestBody FileModel file, @PathVariable Integer id) {
-        FileModel data = fileService.updateFile(file, id);
-
-        HttpHeaders headers = new HttpHeaders();
-
-        return new ResponseEntity<>(data, headers, HttpStatus.OK);
+    public FileModel uploadFile(@RequestBody FileModel file, @PathVariable Integer id) {
+        return fileService.updateFile(file, id);
     }
 
     @DeleteMapping("/file/{id}")
