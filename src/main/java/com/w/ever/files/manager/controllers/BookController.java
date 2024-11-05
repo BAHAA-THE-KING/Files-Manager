@@ -1,7 +1,7 @@
 package com.w.ever.files.manager.controllers;
 
+import com.w.ever.files.manager.models.Book;
 import com.w.ever.files.manager.services.BookService;
-import com.w.ever.models.Book;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;

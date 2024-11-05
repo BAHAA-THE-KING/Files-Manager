@@ -1,7 +1,7 @@
 package com.w.ever.files.manager.services;
 
+import com.w.ever.files.manager.models.Book;
 import com.w.ever.files.manager.repositories.BookRepository;
-import com.w.ever.models.Book;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

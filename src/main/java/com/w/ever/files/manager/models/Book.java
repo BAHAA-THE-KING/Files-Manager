@@ -1,13 +1,11 @@
-package com.w.ever.models;
+package com.w.ever.files.manager.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Entity
+@Table(name="books")
 @Data
 public class Book {
     @Id
