@@ -23,7 +23,6 @@ public class FileController {
         FileModel data = fileService.getFile(id);
 
         HttpHeaders headers = new HttpHeaders();
-        notificationsService.sendNotificationToGroup("asd", "asdasd", "koko");
 
         return new ResponseEntity<>(data, headers, HttpStatus.OK);
     }
