@@ -22,13 +22,38 @@ public class FileService {
     }
 
     public FileModel createFile(FileModel file) {
+        if (file.getParent() != null && file.getParent().getId() != null) {
+            // Fetch the parent entity from the database to make sure it is managed
+            Optional<FileModel> parent = fileRepository.findById(file.getParent().getId());
+            if (parent.isPresent()) {
+                file.setParent(parent.get()); // Set the managed parent entity
+            } else {
+                throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "Parent entity not found");
+            }
+        }
+
+        // Now save the file entity, with the parent properly attached
         return fileRepository.save(file);
+
     }
 
     public FileModel updateFile(FileModel file, Integer id) {
-        Optional<FileModel> fileModel = fileRepository.findById(id);
-        if (fileModel.isEmpty()) throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
-        return fileRepository.save(file);
+        Optional<FileModel> existingFileModelOpt = fileRepository.findById(id);
+        if (existingFileModelOpt.isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        }
+
+        // Get the existing entity from the database
+        FileModel existingFileModel = existingFileModelOpt.get();
+
+        // Update the fields of the existing entity
+        existingFileModel.setName(file.getName());
+        existingFileModel.setPath(file.getPath());
+        existingFileModel.setParent(file.getParent()); // Handle parent carefully
+
+        // Save the updated entity
+        return fileRepository.save(existingFileModel);
+
     }
 
     public void delete(String id) {
