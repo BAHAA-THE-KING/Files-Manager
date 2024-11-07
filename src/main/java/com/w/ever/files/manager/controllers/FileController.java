@@ -1,11 +1,10 @@
 package com.w.ever.files.manager.controllers;
 
 import com.w.ever.files.manager.models.FileModel;
+import com.w.ever.files.manager.responses.ApiResponse;
+import com.w.ever.files.manager.responses.SuccessApiResponse;
 import com.w.ever.files.manager.services.FileService;
 import com.w.ever.files.manager.services.NotificationsService;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,30 +18,22 @@ public class FileController {
     }
 
     @GetMapping("/file/{id}")
-    public ResponseEntity<FileModel> file(@PathVariable Integer id) {
-        FileModel data = fileService.getFile(id);
+    public ApiResponse file(@PathVariable Integer id) {
+        FileModel fileModel = fileService.getFile(id);
 
-        HttpHeaders headers = new HttpHeaders();
-
-        return new ResponseEntity<>(data, headers, HttpStatus.OK);
+        return new SuccessApiResponse(fileModel);
     }
 
     @PostMapping("/file")
-    public ResponseEntity<FileModel> uploadFile(@RequestBody FileModel file) {
-        FileModel data = fileService.createFile(file);
-
-        HttpHeaders headers = new HttpHeaders();
-
-        return new ResponseEntity<>(data, headers, HttpStatus.OK);
+    public ApiResponse uploadFile(@RequestBody FileModel file) {
+        FileModel fileModel = fileService.createFile(file);
+        return new SuccessApiResponse(fileModel);
     }
 
     @PostMapping("/file/{id}")
-    public ResponseEntity<FileModel> uploadFile(@RequestBody FileModel file, @PathVariable Integer id) {
-        FileModel data = fileService.updateFile(file, id);
-
-        HttpHeaders headers = new HttpHeaders();
-
-        return new ResponseEntity<>(data, headers, HttpStatus.OK);
+    public ApiResponse uploadFile(@RequestBody FileModel file, @PathVariable Integer id) {
+        FileModel fileModel = fileService.updateFile(file, id);
+        return new SuccessApiResponse(fileModel);
     }
 
     @DeleteMapping("/file/{id}")
