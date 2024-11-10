@@ -1,41 +1,58 @@
 package com.w.ever.files.manager.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "files")
 @Data
-@NoArgsConstructor
 public class FileModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(referencedColumnName = "id")
-    @JsonBackReference // Prevents recursive serialization of parent field
+    @JoinColumn(name = "parent_id")
     private FileModel parent;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference // Indicates that this is the forward part of the relationship
-    private List<FileModel> children;
+    @ManyToOne
+    @JoinColumn(name = "creator_id", nullable = false)
+    private UserModel creator;
 
+    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CheckInModel> checkIns;
+
+    @OneToOne(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
+    private LockModel lock;
+
+    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<FileShareRequestModel> request;
+
+    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<GroupFileModel> groupFiles;
+
+    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<FileHistoryModel> history;
+
+    @Column(length = 200, nullable = false)
     private String name;
 
+    private String extension;
+
+    @Column(nullable = false)
     private String path;
 
-    @Column(name = "created_at")
-    private LocalDateTime created_at;
+    public FileModel() {
+    }
 
-    @PrePersist
-    protected void onCreate() {
-        this.created_at = LocalDateTime.now();
+    public FileModel(String path, String extension, String name, UserModel creator, FileModel parent) {
+        this.path = path;
+        this.extension = extension;
+        this.name = name;
+        this.creator = creator;
+        this.parent = parent;
     }
 }
