@@ -1,64 +1,58 @@
 package com.w.ever.files.manager.models;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Table(name = "files")
+@Data
 public class FileModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(referencedColumnName = "id")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "parent_id")
     private FileModel parent;
+
+    @ManyToOne
+    @JoinColumn(name = "creator_id", nullable = false)
+    private UserModel creator;
+
+    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CheckInModel> checkIns;
+
+    @OneToOne(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
+    private LockModel lock;
+
+    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<FileShareRequestModel> request;
+
+    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<GroupFileModel> groupFiles;
+
+    @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<FileHistoryModel> history;
+
+    @Column(length = 200, nullable = false)
     private String name;
+
+    private String extension;
+
+    @Column(nullable = false)
     private String path;
-    @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime created_at;
 
     public FileModel() {
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public FileModel getParent() {
-        return parent;
-    }
-
-    public void setParent(FileModel parent) {
-        this.parent = parent;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
+    public FileModel(String path, String extension, String name, UserModel creator, FileModel parent) {
         this.path = path;
-    }
-
-    public LocalDateTime getCreated_at() {
-        return created_at;
-    }
-
-    public void setCreated_at(LocalDateTime created_at) {
-        this.created_at = created_at;
+        this.extension = extension;
+        this.name = name;
+        this.creator = creator;
+        this.parent = parent;
     }
 }

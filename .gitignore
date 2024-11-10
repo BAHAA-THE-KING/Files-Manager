@@ -3,7 +3,7 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-/src/main/java/com/w/ever/files/manager/service-account.json
+/src/main/resources/service-account.json
 
 ### STS ###
 .apt_generated
