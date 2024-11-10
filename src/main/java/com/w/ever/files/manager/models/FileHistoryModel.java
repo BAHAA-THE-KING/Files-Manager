@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "file_history", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"file", "version"})
+        @UniqueConstraint(columnNames = {"file_id", "version"})
 })
 @Data
 @NoArgsConstructor
