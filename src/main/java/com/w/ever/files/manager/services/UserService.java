@@ -60,6 +60,7 @@ public class UserService {
         if (!userRepository.exists(id)) {
             throw new BadRequestException("User doesn't exist.");
         }
+        /* TODO: Implement Soft Delete */
         userRepository.deleteById(id);
     }
 
