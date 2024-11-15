@@ -1,14 +1,14 @@
 package com.w.ever.files.manager.services;
 
+import com.w.ever.files.manager.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
-    public boolean login(String username, String password) {
-        return true;
+    final UserRepository userRepository;
+
+    public AuthService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    public boolean register(String username, String password) {
-        return true;
-    }
 }

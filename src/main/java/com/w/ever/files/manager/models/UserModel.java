@@ -1,5 +1,6 @@
 package com.w.ever.files.manager.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -20,7 +21,11 @@ public class UserModel {
     @Column(length = 50, nullable = false, unique = true)
     private String username;
 
+    @Column(length = 50, nullable = false, unique = true)
+    private String email;
+
     @Column(nullable = false, length = 255)
+    @JsonIgnore
     private String password;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -44,9 +49,10 @@ public class UserModel {
     public UserModel() {
     }
 
-    public UserModel(String password, String username, String name) {
+    public UserModel(String name, String username, String email, String password) {
         this.password = password;
         this.username = username;
+        this.email = email;
         this.name = name;
     }
 }
