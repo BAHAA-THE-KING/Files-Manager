@@ -3,16 +3,14 @@ package com.w.ever.files.manager.controllers;
 import com.w.ever.files.manager.dto.RegisterDTO;
 import com.w.ever.files.manager.dto.UpdateUserDTO;
 import com.w.ever.files.manager.models.UserModel;
-import com.w.ever.files.manager.responses.ApiResponse;
-import com.w.ever.files.manager.responses.ErrorApiResponse;
-import com.w.ever.files.manager.responses.SuccessApiResponse;
+import com.w.ever.files.manager.responses.ErrorResponse;
+import com.w.ever.files.manager.responses.SuccessResponse;
 import com.w.ever.files.manager.services.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.apache.coyote.BadRequestException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("user")
@@ -29,23 +27,23 @@ public class UserController {
     }
 
     @GetMapping("{id}")
-    public ApiResponse getProfile(@PathVariable @NotNull(message = "User ID cannot be null") Integer id) {
+    public ResponseEntity getProfile(@PathVariable @NotNull(message = "User ID cannot be null") Integer id) {
         UserModel userModel = userService.getProfile(id);
         if (userModel == null) {
-            return new ErrorApiResponse(null, List.of("User not found"));
+            return new ErrorResponse(404,"User not found");
         }
-        return new SuccessApiResponse(userModel);
+        return new SuccessResponse(userModel);
     }
 
     @PutMapping("{id}")
-    public ApiResponse updateUser(@Valid @RequestBody UpdateUserDTO userData, @PathVariable @NotNull(message = "User ID cannot be null") Integer id) throws BadRequestException {
+    public ResponseEntity updateUser(@Valid @RequestBody UpdateUserDTO userData, @PathVariable @NotNull(message = "User ID cannot be null") Integer id) throws BadRequestException {
         UserModel userModel = userService.updateUser(id, userData);
-        return new SuccessApiResponse(userModel);
+        return new SuccessResponse(userModel);
     }
 
     @DeleteMapping("{id}")
-    public ApiResponse deleteUser(@PathVariable @NotNull(message = "User ID cannot be null") Integer id) throws BadRequestException {
+    public ResponseEntity deleteUser(@PathVariable @NotNull(message = "User ID cannot be null") Integer id) throws BadRequestException {
         userService.deleteUser(id);
-        return new SuccessApiResponse(null);
+        return new SuccessResponse();
     }
 }

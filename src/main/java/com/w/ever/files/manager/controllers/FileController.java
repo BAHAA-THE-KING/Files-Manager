@@ -1,10 +1,10 @@
 package com.w.ever.files.manager.controllers;
 
 import com.w.ever.files.manager.models.FileModel;
-import com.w.ever.files.manager.responses.ApiResponse;
-import com.w.ever.files.manager.responses.SuccessApiResponse;
+import com.w.ever.files.manager.responses.SuccessResponse;
 import com.w.ever.files.manager.services.FileService;
 import com.w.ever.files.manager.services.NotificationsService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,22 +18,22 @@ public class FileController {
     }
 
     @GetMapping("/file/{id}")
-    public ApiResponse file(@PathVariable Integer id) {
+    public ResponseEntity file(@PathVariable Integer id) {
         FileModel fileModel = fileService.getFile(id);
 
-        return new SuccessApiResponse(fileModel);
+        return new SuccessResponse(fileModel);
     }
 
     @PostMapping("/file")
-    public ApiResponse uploadFile(@RequestBody FileModel file) {
+    public ResponseEntity uploadFile(@RequestBody FileModel file) {
         FileModel fileModel = fileService.createFile(file);
-        return new SuccessApiResponse(fileModel);
+        return new SuccessResponse(fileModel);
     }
 
     @PostMapping("/file/{id}")
-    public ApiResponse uploadFile(@RequestBody FileModel file, @PathVariable Integer id) {
+    public ResponseEntity uploadFile(@RequestBody FileModel file, @PathVariable Integer id) {
         FileModel fileModel = fileService.updateFile(file, id);
-        return new SuccessApiResponse(fileModel);
+        return new SuccessResponse(fileModel);
     }
 
     @DeleteMapping("/file/{id}")

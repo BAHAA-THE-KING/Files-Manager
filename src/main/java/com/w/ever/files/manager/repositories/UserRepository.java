@@ -6,6 +6,8 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface UserRepository extends CrudRepository<UserModel, Integer> {
     @Query("SELECT CASE WHEN COUNT(u) > 0 THEN TRUE ELSE FALSE END FROM UserModel u WHERE u.email = :email AND u.id <> :userId")
@@ -16,4 +18,6 @@ public interface UserRepository extends CrudRepository<UserModel, Integer> {
 
     @Query("SELECT CASE WHEN COUNT(u) > 0 THEN TRUE ELSE FALSE END FROM UserModel u WHERE u.id <> :userId")
     boolean exists(@Param("userId") Integer userId);
+
+    Optional<UserModel> findUserByUsername(String username);
 }
