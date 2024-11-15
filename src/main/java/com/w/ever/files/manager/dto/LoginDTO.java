@@ -13,6 +13,6 @@ public class LoginDTO {
     private String username;
 
     @NotNull(message = "Password is required")
-    @Size(min = 1,max = 50, message = "Password must be between 1,50 characters")
+    @Size(min = 1,max = 100, message = "Password must be between 1,50 characters")
     private String password;
 }

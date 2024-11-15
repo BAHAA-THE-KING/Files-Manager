@@ -1,7 +1,7 @@
 package com.w.ever.files.manager.filters;
-
 import com.w.ever.files.manager.models.UserModel;
 import com.w.ever.files.manager.repositories.UserRepository;
+import com.w.ever.files.manager.services.CustomUserDetailsService;
 import com.w.ever.files.manager.utiles.JwtTokenUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,12 +10,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
-import java.util.Optional;
 
 @Component
 public class JwtTokenFilter extends OncePerRequestFilter {
@@ -24,42 +23,62 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private JwtTokenUtil jwtTokenUtil;
 
     @Autowired
-    private UserRepository userRepository; // Inject the UserRepository
+    private UserRepository userRepository;
 
     @Autowired
-    private UserDetailsService userDetailsService; // This can still be used if needed
+    private CustomUserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        // Step 1: Extract the Authorization header
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            // Step 2: Extract the token from the header
-            String token = authHeader.substring(7); // Remove "Bearer " prefix
-            Integer userId = jwtTokenUtil.extractUserId(token); // Get user ID from token
 
-            // Step 3: Check if the user is not already authenticated
-            if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                // Step 4: Validate the token using the new isTokenValid method
-                if (jwtTokenUtil.isTokenValid(token, userId)) {
-                    // Step 5: Fetch user from the database using userId
-                    Optional<UserModel> userOpt = userRepository.findById(userId);
-                    if (userOpt.isPresent()) {
-                        // Step 6: Create the Authentication token with the User's details
-                        UserModel user = userOpt.get();
-                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                                user.getUsername(), null, userDetailsService.loadUserByUsername(user.getUsername()).getAuthorities()
-                        );
-                        // Step 7: Set the details (this can be customized based on request)
-                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        // Step 8: Set authentication in SecurityContext
-                        SecurityContextHolder.getContext().setAuthentication(authToken);
+        String authHeader = request.getHeader("Authorization");
+
+        // Check if the Authorization header exists and starts with "Bearer"
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7); // Remove the "Bearer " prefix
+            try {
+                Integer userId = jwtTokenUtil.extractUserId(token); // Get user ID from the token
+                // If a user ID is extracted and the user is not already authenticated
+                if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    // Validate the token
+                    if (jwtTokenUtil.isTokenValid(token, userId)) {
+                        // Fetch user from the database
+                        UserModel user = userRepository.findById(userId).orElse(null);
+
+                        if (user != null) {
+                            // Use UserDetailsService to load user details for authentication
+                            var userDetails = userDetailsService.loadUserByUsername(user.getUsername());
+
+                            // Create authentication token
+                            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities()
+                            );
+
+                            // Set request details for authentication
+                            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                            // Set the authentication context for the current request
+                            SecurityContextHolder.getContext().setAuthentication(authToken);
+                        }
+                    } else {
+                        // Token is invalid or expired
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.getWriter().write("Invalid or expired token");
+                        response.getWriter().flush();  // Explicitly flush the response
+                        return; // Stop further processing
                     }
                 }
+            } catch (Exception e) {
+                // Handle any errors (e.g., token parsing issues)
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Invalid token format or authentication failed");
+                response.getWriter().flush();  // Explicitly flush the response
+                return; // Stop further processing
             }
         }
-        // Step 9: Continue filter chain
+
+        // Continue the filter chain
         chain.doFilter(request, response);
     }
 }

@@ -1,5 +1,6 @@
 package com.w.ever.files.manager.handlers;
 
+import com.w.ever.files.manager.aspects.LogMe;
 import com.w.ever.files.manager.responses.ApiErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +25,8 @@ public class Handler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiErrorResponse> handleGeneralExceptions(Exception ex) {
+    public ResponseEntity<ApiErrorResponse> handleGeneralExceptions(Exception ex) throws Exception {
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse(LocalDateTime.now(), "An error occurred", List.of(ex.getMessage()));
-
         return new ResponseEntity<>(apiErrorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
