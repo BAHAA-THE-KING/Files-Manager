@@ -4,17 +4,10 @@ import com.w.ever.files.manager.dto.LoginDTO;
 import com.w.ever.files.manager.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class AuthController {
-    private final AuthService authService;
-
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
-
     @PostMapping(path = "login")
     public String login(@Valid @RequestBody LoginDTO loginData) {
         return this.authService.login(loginData.getUsername(), loginData.getPassword());
