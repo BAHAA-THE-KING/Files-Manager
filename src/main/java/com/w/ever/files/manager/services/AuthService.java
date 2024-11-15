@@ -1,20 +1,17 @@
 package com.w.ever.files.manager.services;
 
+import com.w.ever.files.manager.exceptions.ErrorResponseException;
 import com.w.ever.files.manager.models.UserModel;
 import com.w.ever.files.manager.repositories.UserRepository;
-import com.w.ever.files.manager.responses.ApiErrorResponse;
-import com.w.ever.files.manager.responses.ApiResponse;
+import com.w.ever.files.manager.responses.SuccessResponse;
 import com.w.ever.files.manager.utiles.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 @Service
 public class AuthService {
@@ -25,15 +22,19 @@ public class AuthService {
     @Autowired
     private UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    public String login(String username, String password) {
-        UserModel user = userRepository.findUserByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-        if(!passwordEncoder.matches(password, user.getPassword())){
-            System.out.println(password);
-            System.out.println(user.getPassword());
-            return "Bad credentials";
+
+    public ResponseEntity login(String username, String password){
+        UserModel user = userRepository.findUserByUsername(username).orElse(null);
+        if(user==null){
+            throw new ErrorResponseException("Wrong credentials");
         }
-        return "JWT:  "+jwtTokenUtil.generateToken(user.getId());
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new ErrorResponseException("Wrong credentials");
+        }
+        return new SuccessResponse(new HashMap<String, Object>() {{
+            put("token", jwtTokenUtil.generateToken(user.getId()));
+            put("user",user);
+        }});
     }
 
     public boolean register(String username, String password) {

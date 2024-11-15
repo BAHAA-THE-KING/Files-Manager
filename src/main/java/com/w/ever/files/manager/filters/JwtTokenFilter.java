@@ -1,4 +1,5 @@
 package com.w.ever.files.manager.filters;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.w.ever.files.manager.models.UserModel;
 import com.w.ever.files.manager.repositories.UserRepository;
 import com.w.ever.files.manager.services.CustomUserDetailsService;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 @Component
 public class JwtTokenFilter extends OncePerRequestFilter {
@@ -62,23 +64,27 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                             SecurityContextHolder.getContext().setAuthentication(authToken);
                         }
                     } else {
-                        // Token is invalid or expired
-                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        response.getWriter().write("Invalid or expired token");
-                        response.getWriter().flush();  // Explicitly flush the response
+                        writeErrorOnResponse(response);
                         return; // Stop further processing
                     }
                 }
             } catch (Exception e) {
                 // Handle any errors (e.g., token parsing issues)
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Invalid token format or authentication failed");
-                response.getWriter().flush();  // Explicitly flush the response
+                writeErrorOnResponse(response);
                 return; // Stop further processing
             }
         }
 
         // Continue the filter chain
         chain.doFilter(request, response);
+    }
+
+    private void writeErrorOnResponse(HttpServletResponse response) throws IOException {
+        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getWriter().write(new ObjectMapper().writeValueAsString(new HashMap<String,String>(){{
+            put("message","");
+        }}));
+        response.getWriter().flush();
     }
 }
