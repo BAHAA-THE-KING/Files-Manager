@@ -20,8 +20,9 @@ public class AuthAspect {
         this.tokenService = tokenService;
     }
 
-    @Before("execution(* com.w.ever.files.manager.controllers..*(..)) && !execution(* com.w.ever.files.manager.controllers.AuthController..*(..))")
-    public void checkAccessToken(JoinPoint joinPoint) throws Exception {
+    @Before("execution(* com.w.ever.files.manager.controllers..*(..)) && !execution(* com.w.ever.files.manager.controllers..register(..)) && !execution(* com.w.ever.files.manager.controllers..login(..))")
+
+    public void checkAccessToken(JoinPoint joinPoint) {
         // Access the HttpServletRequest from the current request context
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attributes != null) {

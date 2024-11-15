@@ -1,10 +1,11 @@
 package com.w.ever.files.manager.controllers;
 
-import com.w.ever.files.manager.models.FileModel;
+import com.w.ever.files.manager.dto.RegisterDTO;
 import com.w.ever.files.manager.models.UserModel;
 import com.w.ever.files.manager.responses.ApiResponse;
 import com.w.ever.files.manager.responses.SuccessApiResponse;
 import com.w.ever.files.manager.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,20 +16,25 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PostMapping(path = "register")
+    public UserModel register(@Valid @RequestBody RegisterDTO userData) {
+        return this.userService.register(userData);
+    }
+
     @GetMapping("/user/{id}")
-    public ApiResponse profile(@PathVariable Integer id) {
-        UserModel userModel =userService.getProfile();
-        return new SuccessApiResponse(fileModel);
+    public ApiResponse getProfile(@PathVariable Integer id) {
+        UserModel userModel = userService.getProfile(id);
+        return new SuccessApiResponse(userModel);
     }
 
-    @PutMapping("/user")
-    public ApiResponse uploadFile(@RequestBody FileModel file, @PathVariable Integer id) {
-        FileModel fileModel = fileService.updateFile(file, id);
-        return new SuccessApiResponse(fileModel);
+    @PutMapping("/user/{id}")
+    public ApiResponse updateUser(@RequestBody UserModel user, @PathVariable Integer id) {
+//        FileModel userModel = userService.updateFile(file, id);
+        return new SuccessApiResponse(new UserModel());
     }
 
-    @DeleteMapping("/user")
-    public void deleteFile(@PathVariable String id) {
-        fileService.delete(id);
+    @DeleteMapping("/user/{id}")
+    public void deleteUser(@PathVariable String id) {
+        userService.delete(id);
     }
 }
