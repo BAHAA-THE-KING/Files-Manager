@@ -1,5 +1,6 @@
 package com.w.ever.files.manager.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -24,6 +25,7 @@ public class UserModel {
     private String email;
 
     @Column(nullable = false, length = 255)
+    @JsonIgnore
     private String password;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

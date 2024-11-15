@@ -1,13 +1,13 @@
 package com.w.ever.files.manager.responses;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class ApiResponse {
     protected String message;
     protected Object data;
-    protected ArrayList<String> errors;
+    protected List<String> errors;
 
-    public ApiResponse(Object data, String message, ArrayList<String> errors) {
+    public ApiResponse(Object data, String message, List<String> errors) {
         this.message = message;
         this.data = data;
         this.errors = errors;
@@ -29,11 +29,11 @@ public class ApiResponse {
         this.data = data;
     }
 
-    public ArrayList<String> getErrors() {
+    public List<String> getErrors() {
         return errors;
     }
 
-    public void setErrors(ArrayList<String> errors) {
+    public void setErrors(List<String> errors) {
         this.errors = errors;
     }
 }
