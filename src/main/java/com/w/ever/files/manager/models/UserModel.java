@@ -20,6 +20,9 @@ public class UserModel {
     @Column(length = 50, nullable = false, unique = true)
     private String username;
 
+    @Column(length = 50, nullable = false, unique = true)
+    private String email;
+
     @Column(nullable = false, length = 255)
     private String password;
 
@@ -44,9 +47,10 @@ public class UserModel {
     public UserModel() {
     }
 
-    public UserModel(String password, String username, String name) {
+    public UserModel(String name, String username, String email, String password) {
         this.password = password;
         this.username = username;
+        this.email = email;
         this.name = name;
     }
 }
