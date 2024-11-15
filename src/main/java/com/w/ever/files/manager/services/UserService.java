@@ -56,7 +56,11 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public void delete(String id) {
+    public void deleteUser(Integer id) throws BadRequestException {
+        if (!userRepository.exists(id)) {
+            throw new BadRequestException("User doesn't exist.");
+        }
+        userRepository.deleteById(id);
     }
 
     public boolean isEmailUnique(String email, Integer id) {

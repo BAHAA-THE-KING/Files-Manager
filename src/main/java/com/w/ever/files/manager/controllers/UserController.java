@@ -29,7 +29,7 @@ public class UserController {
     }
 
     @GetMapping("{id}")
-    public ApiResponse getProfile(@PathVariable Integer id) {
+    public ApiResponse getProfile(@PathVariable @NotNull(message = "User ID cannot be null") Integer id) {
         UserModel userModel = userService.getProfile(id);
         if (userModel == null) {
             return new ErrorApiResponse(null, List.of("User not found"));
@@ -44,7 +44,8 @@ public class UserController {
     }
 
     @DeleteMapping("{id}")
-    public void deleteUser(@PathVariable String id) {
-        userService.delete(id);
+    public ApiResponse deleteUser(@PathVariable @NotNull(message = "User ID cannot be null") Integer id) throws BadRequestException {
+        userService.deleteUser(id);
+        return new SuccessApiResponse(null);
     }
 }
