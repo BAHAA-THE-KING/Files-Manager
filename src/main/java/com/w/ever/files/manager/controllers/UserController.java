@@ -1,17 +1,21 @@
 package com.w.ever.files.manager.controllers;
 
 import com.w.ever.files.manager.dto.RegisterDTO;
+import com.w.ever.files.manager.dto.UpdateUserDTO;
 import com.w.ever.files.manager.models.UserModel;
 import com.w.ever.files.manager.responses.ApiResponse;
 import com.w.ever.files.manager.responses.ErrorApiResponse;
 import com.w.ever.files.manager.responses.SuccessApiResponse;
 import com.w.ever.files.manager.services.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import org.apache.coyote.BadRequestException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("user")
 public class UserController {
     private final UserService userService;
 
@@ -19,12 +23,12 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping(path = "register")
+    @PostMapping("register")
     public UserModel register(@Valid @RequestBody RegisterDTO userData) {
         return this.userService.register(userData);
     }
 
-    @GetMapping("/user/{id}")
+    @GetMapping("{id}")
     public ApiResponse getProfile(@PathVariable Integer id) {
         UserModel userModel = userService.getProfile(id);
         if (userModel == null) {
@@ -33,13 +37,13 @@ public class UserController {
         return new SuccessApiResponse(userModel);
     }
 
-    @PutMapping("/user/{id}")
-    public ApiResponse updateUser(@RequestBody UserModel user, @PathVariable Integer id) {
-//        FileModel userModel = userService.updateFile(file, id);
-        return new SuccessApiResponse(new UserModel());
+    @PutMapping("{id}")
+    public ApiResponse updateUser(@Valid @RequestBody UpdateUserDTO userData, @PathVariable @NotNull(message = "User ID cannot be null") Integer id) throws BadRequestException {
+        UserModel userModel = userService.updateUser(id, userData);
+        return new SuccessApiResponse(userModel);
     }
 
-    @DeleteMapping("/user/{id}")
+    @DeleteMapping("{id}")
     public void deleteUser(@PathVariable String id) {
         userService.delete(id);
     }
