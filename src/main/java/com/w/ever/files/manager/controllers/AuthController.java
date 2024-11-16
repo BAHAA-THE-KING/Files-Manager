@@ -1,6 +1,6 @@
 package com.w.ever.files.manager.controllers;
 
-import com.w.ever.files.manager.dto.LoginDTO;
+import com.w.ever.files.manager.dto.auth.LoginDTO;
 import com.w.ever.files.manager.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

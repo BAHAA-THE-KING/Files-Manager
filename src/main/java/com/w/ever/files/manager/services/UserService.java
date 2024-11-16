@@ -1,7 +1,7 @@
 package com.w.ever.files.manager.services;
 
-import com.w.ever.files.manager.dto.RegisterDTO;
-import com.w.ever.files.manager.dto.UpdateUserDTO;
+import com.w.ever.files.manager.dto.users.RegisterDTO;
+import com.w.ever.files.manager.dto.users.UpdateUserDTO;
 import com.w.ever.files.manager.models.UserModel;
 import com.w.ever.files.manager.repositories.UserRepository;
 import org.apache.coyote.BadRequestException;
@@ -27,7 +27,7 @@ public class UserService {
 
     public UserModel updateUser(Integer id, UpdateUserDTO userData) throws BadRequestException {
         UserModel user = getProfile(id);
-        if (user == null) return null;
+        if (user == null) throw new BadRequestException("User Doesn't Exist");
 
         if (userData.getName() != null) {
             user.setName(userData.getName());
