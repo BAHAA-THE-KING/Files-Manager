@@ -27,7 +27,7 @@ public class UserService {
 
     public UserModel updateUser(Integer id, UpdateUserDTO userData) throws BadRequestException {
         UserModel user = getProfile(id);
-        if (user == null) return null;
+        if (user == null) throw new BadRequestException("User Doesn't Exist");
 
         if (userData.getName() != null) {
             user.setName(userData.getName());

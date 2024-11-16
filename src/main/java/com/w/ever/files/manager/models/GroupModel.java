@@ -31,10 +31,13 @@ public class GroupModel {
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<GroupFileModel> groupFiles = new HashSet<>();
 
+    @Column(nullable = true)
     private String description;
 
+    @Column(nullable = true)
     private String color;
 
+    @Column(nullable = true)
     private String lang;
 
     public GroupModel() {
