@@ -22,15 +22,16 @@ public class UserController {
     }
 
     @PostMapping("register")
-    public UserModel register(@Valid @RequestBody RegisterDTO userData) {
-        return this.userService.register(userData);
+    public ResponseEntity register(@Valid @RequestBody RegisterDTO userData) {
+        UserModel userModel = this.userService.register(userData);
+        return new SuccessResponse(userModel);
     }
 
     @GetMapping("{id}")
     public ResponseEntity getProfile(@PathVariable @NotNull(message = "User ID cannot be null") Integer id) {
         UserModel userModel = userService.getProfile(id);
         if (userModel == null) {
-            return new ErrorResponse(404,"User not found");
+            return new ErrorResponse(404, "User not found");
         }
         return new SuccessResponse(userModel);
     }
