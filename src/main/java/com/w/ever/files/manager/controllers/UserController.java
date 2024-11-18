@@ -26,6 +26,13 @@ public class UserController {
         return new SuccessResponse(this.userService.register(userData));
     }
 
+    @PostMapping("hello")
+    public ResponseEntity register() {
+        System.out.println("noice");
+        throw new RuntimeException("sdfdsafasdfdsf");
+//        return new SuccessResponse(this.userService.register(userData));
+    }
+
     @GetMapping("{id}")
     public ResponseEntity getProfile(@PathVariable @NotNull(message = "User ID cannot be null") Integer id) {
         UserModel userModel = userService.getProfile(id);
