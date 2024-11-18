@@ -83,7 +83,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.getWriter().write(new ObjectMapper().writeValueAsString(new HashMap<String,String>(){{
-            put("message","");
+            put("message","Unauthenticated.");
         }}));
         response.getWriter().flush();
     }
