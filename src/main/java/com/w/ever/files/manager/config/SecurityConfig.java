@@ -25,10 +25,9 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)  // Disable CSRF protection for stateless applications
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register").permitAll()  // Allow public access to login and register
+                        .requestMatchers("/login", "user/register").permitAll()  // Allow public access to login and register
                         .anyRequest().authenticated()  // Require authentication for all other requests
                 )
-
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

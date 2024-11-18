@@ -23,8 +23,7 @@ public class UserController {
 
     @PostMapping("register")
     public ResponseEntity register(@Valid @RequestBody RegisterDTO userData) {
-        UserModel userModel = this.userService.register(userData);
-        return new SuccessResponse(userModel);
+        return new SuccessResponse(this.userService.register(userData));
     }
 
     @GetMapping("{id}")

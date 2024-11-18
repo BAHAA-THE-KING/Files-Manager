@@ -18,9 +18,9 @@ public class AuthService {
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
-    private JwtTokenUtil jwtTokenUtil;
-    @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public ResponseEntity login(String username, String password){

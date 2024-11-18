@@ -6,15 +6,25 @@ import com.w.ever.files.manager.models.GroupUserModel;
 import com.w.ever.files.manager.models.UserModel;
 import com.w.ever.files.manager.repositories.GroupUserRepository;
 import com.w.ever.files.manager.repositories.UserRepository;
+import com.w.ever.files.manager.utiles.JwtTokenUtil;
 import org.apache.coyote.BadRequestException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final GroupUserRepository groupUserRepository;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public UserService(UserRepository userRepository, GroupUserRepository groupUserRepository) {
         this.userRepository = userRepository;
@@ -25,10 +35,13 @@ public class UserService {
         return userRepository.findById(id).orElse(null);
     }
 
-    public UserModel register(RegisterDTO userData) {
+    public Map register(RegisterDTO userData) {
         UserModel user = userRepository.save(new UserModel(userData.getName(), userData.getUsername(), userData.getEmail(), userData.getPassword()));
         /* TODO: Give Him A Token */
-        return user;
+        return new HashMap<Object,Object>(){{
+            put("token",jwtTokenUtil.generateToken(user.getId()));
+            put("model",user);
+        }};
     }
 
     public UserModel updateUser(Integer id, UpdateUserDTO userData) throws BadRequestException {
