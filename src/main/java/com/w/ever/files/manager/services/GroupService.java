@@ -11,6 +11,8 @@ import com.w.ever.files.manager.repositories.GroupUserRepository;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class GroupService {
     private final GroupRepository groupRepository;
@@ -76,6 +78,7 @@ public class GroupService {
 
         groupUserModel.setGroup(group);
         groupUserModel.setUser(user);
+        groupUserModel.setInvitationExpiresAt(LocalDateTime.now());
         return groupUserRepository.save(groupUserModel);
     }
 

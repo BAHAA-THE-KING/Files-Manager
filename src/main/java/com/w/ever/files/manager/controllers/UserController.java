@@ -47,4 +47,10 @@ public class UserController {
         userService.deleteUser(id);
         return new SuccessResponse();
     }
+
+    @PostMapping("accept-invitation/{invitationId}")
+    public ResponseEntity accept(@PathVariable @NotNull(message = "Invitation ID cannot be nul") Integer invitationId) throws BadRequestException {
+        userService.acceptInvitation(invitationId);
+        return new SuccessResponse();
+    }
 }

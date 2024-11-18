@@ -2,17 +2,23 @@ package com.w.ever.files.manager.services;
 
 import com.w.ever.files.manager.dto.users.RegisterDTO;
 import com.w.ever.files.manager.dto.users.UpdateUserDTO;
+import com.w.ever.files.manager.models.GroupUserModel;
 import com.w.ever.files.manager.models.UserModel;
+import com.w.ever.files.manager.repositories.GroupUserRepository;
 import com.w.ever.files.manager.repositories.UserRepository;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final GroupUserRepository groupUserRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, GroupUserRepository groupUserRepository) {
         this.userRepository = userRepository;
+        this.groupUserRepository = groupUserRepository;
     }
 
     public UserModel getProfile(Integer id) {
@@ -72,5 +78,17 @@ public class UserService {
     public boolean isUsernameUnique(String username, Integer id) {
         if (username == null) return true;
         return !userRepository.existsByUsernameAndNotUserId(username, id);
+    }
+
+    public void acceptInvitation(Integer invitationId) throws BadRequestException {
+        GroupUserModel invitation = groupUserRepository.findById(invitationId).orElse(null);
+        if (invitation == null) throw new BadRequestException("Invitation ID is invalid");
+        if (invitation.getInvitationExpiresAt().isAfter(LocalDateTime.now())) {
+            invitation.setInvitationExpiresAt(null);
+            invitation.setJoinedAt(LocalDateTime.now());
+            groupUserRepository.save(invitation);
+        } else {
+            throw new BadRequestException("Invitation is expired");
+        }
     }
 }
