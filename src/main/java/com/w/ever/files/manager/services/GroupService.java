@@ -1,21 +1,28 @@
 package com.w.ever.files.manager.services;
 
 import com.w.ever.files.manager.dto.groups.CreateGroupDTO;
+import com.w.ever.files.manager.dto.groups.GroupInvitationDTO;
 import com.w.ever.files.manager.dto.groups.UpdateGroupDTO;
 import com.w.ever.files.manager.models.GroupModel;
+import com.w.ever.files.manager.models.GroupUserModel;
 import com.w.ever.files.manager.models.UserModel;
 import com.w.ever.files.manager.repositories.GroupRepository;
+import com.w.ever.files.manager.repositories.GroupUserRepository;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 public class GroupService {
     private final GroupRepository groupRepository;
+    private final GroupUserRepository groupUserRepository;
     private final UserService userService;
 
-    public GroupService(GroupRepository groupRepository, UserService userService) {
+    public GroupService(GroupRepository groupRepository, UserService userService, GroupUserRepository groupUserRepository) {
         this.groupRepository = groupRepository;
         this.userService = userService;
+        this.groupUserRepository = groupUserRepository;
     }
 
     public GroupModel createGroup(CreateGroupDTO groupData) throws BadRequestException {
@@ -53,6 +60,28 @@ public class GroupService {
 
         return groupRepository.save(group);
     }
+
+    public GroupUserModel invite(GroupInvitationDTO invitationData) throws BadRequestException {
+        Integer groupId = invitationData.getGroup_id();
+        Integer userId = invitationData.getUser_id();
+
+        if (groupUserRepository.invitationExists(userId, groupId)) {
+            throw new BadRequestException("User already invited.");
+        }
+        if (groupUserRepository.userJoined(userId, groupId)) {
+            throw new BadRequestException("User already joined.");
+        }
+
+        GroupUserModel groupUserModel = new GroupUserModel();
+        GroupModel group = getGroup(groupId);
+        UserModel user = userService.getProfile(userId);
+
+        groupUserModel.setGroup(group);
+        groupUserModel.setUser(user);
+        groupUserModel.setInvitationExpiresAt(LocalDateTime.now());
+        return groupUserRepository.save(groupUserModel);
+    }
+
 
     public void deleteGroup(Integer id) throws BadRequestException {
         if (!groupRepository.exists(id)) {

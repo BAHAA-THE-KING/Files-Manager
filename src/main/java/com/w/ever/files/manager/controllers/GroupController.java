@@ -1,8 +1,10 @@
 package com.w.ever.files.manager.controllers;
 
 import com.w.ever.files.manager.dto.groups.CreateGroupDTO;
+import com.w.ever.files.manager.dto.groups.GroupInvitationDTO;
 import com.w.ever.files.manager.dto.groups.UpdateGroupDTO;
 import com.w.ever.files.manager.models.GroupModel;
+import com.w.ever.files.manager.models.GroupUserModel;
 import com.w.ever.files.manager.responses.ErrorResponse;
 import com.w.ever.files.manager.responses.SuccessResponse;
 import com.w.ever.files.manager.services.GroupService;
@@ -47,5 +49,11 @@ public class GroupController {
     public ResponseEntity deleteGroup(@PathVariable @NotNull(message = "Group ID cannot be null") Integer id) throws BadRequestException {
         groupService.deleteGroup(id);
         return new SuccessResponse();
+    }
+
+    @PostMapping("invite")
+    public ResponseEntity createInvitation(@Valid @RequestBody GroupInvitationDTO invitationData) throws BadRequestException {
+        GroupUserModel groupUserModel = groupService.invite(invitationData);
+        return new SuccessResponse(groupUserModel);
     }
 }

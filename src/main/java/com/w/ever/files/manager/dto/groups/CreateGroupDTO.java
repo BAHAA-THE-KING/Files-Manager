@@ -10,7 +10,6 @@ import lombok.Data;
 
 @Data
 public class CreateGroupDTO {
-
     @NotNull(message = "Name is required")
     @Size(min = 3, message = "Name must be at least 3 characters long")
     @Unique(entity = GroupModel.class, fieldName = "name", message = "Group name is used")
