@@ -5,6 +5,7 @@ import com.w.ever.files.manager.dto.users.UpdateUserDTO;
 import com.w.ever.files.manager.models.UserModel;
 import com.w.ever.files.manager.responses.ErrorResponse;
 import com.w.ever.files.manager.responses.SuccessResponse;
+import com.w.ever.files.manager.services.NotificationsService;
 import com.w.ever.files.manager.services.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -16,21 +17,16 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("user")
 public class UserController {
     private final UserService userService;
+    private final NotificationsService notificationsService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, NotificationsService notificationsService) {
         this.userService = userService;
+        this.notificationsService = notificationsService;
     }
 
     @PostMapping("register")
     public ResponseEntity register(@Valid @RequestBody RegisterDTO userData) {
         return new SuccessResponse(this.userService.register(userData));
-    }
-
-    @PostMapping("hello")
-    public ResponseEntity register() {
-        System.out.println("noice");
-        throw new RuntimeException("sdfdsafasdfdsf");
-//        return new SuccessResponse(this.userService.register(userData));
     }
 
     @GetMapping("{id}")
@@ -45,18 +41,21 @@ public class UserController {
     @PutMapping("{id}")
     public ResponseEntity updateUser(@Valid @RequestBody UpdateUserDTO userData, @PathVariable @NotNull(message = "User ID cannot be null") Integer id) throws BadRequestException {
         UserModel userModel = userService.updateUser(id, userData);
+        /* TODO: Send Notifications */
         return new SuccessResponse(userModel);
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity deleteUser(@PathVariable @NotNull(message = "User ID cannot be null") Integer id) throws BadRequestException {
         userService.deleteUser(id);
+        /* TODO: Send Notifications */
         return new SuccessResponse();
     }
 
     @PostMapping("accept-invitation/{invitationId}")
     public ResponseEntity accept(@PathVariable @NotNull(message = "Invitation ID cannot be nul") Integer invitationId) throws BadRequestException {
         userService.acceptInvitation(invitationId);
+        /* TODO: Send Notifications */
         return new SuccessResponse();
     }
 }
