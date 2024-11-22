@@ -1,11 +1,16 @@
 package com.w.ever.files.manager.controllers;
 
+import com.w.ever.files.manager.dto.files.CreateFileRequestDTO;
 import com.w.ever.files.manager.models.FileModel;
 import com.w.ever.files.manager.responses.SuccessResponse;
 import com.w.ever.files.manager.services.FileService;
 import com.w.ever.files.manager.services.NotificationsService;
+import jakarta.validation.Valid;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class FileController {
@@ -17,27 +22,10 @@ public class FileController {
         this.notificationsService = notificationsService;
     }
 
-    @GetMapping("/file/{id}")
-    public ResponseEntity file(@PathVariable Integer id) {
-        FileModel fileModel = fileService.getFile(id);
-
+    @PostMapping("group/file-requests")
+    public ResponseEntity createFileRequest(@Valid @RequestBody CreateFileRequestDTO requestData) throws BadRequestException {
+        FileModel fileModel = fileService.createFile(requestData);
+        /* TODO: Send Notification */
         return new SuccessResponse(fileModel);
-    }
-
-    @PostMapping("/file")
-    public ResponseEntity uploadFile(@RequestBody FileModel file) {
-        FileModel fileModel = fileService.createFile(file);
-        return new SuccessResponse(fileModel);
-    }
-
-    @PostMapping("/file/{id}")
-    public ResponseEntity uploadFile(@RequestBody FileModel file, @PathVariable Integer id) {
-        FileModel fileModel = fileService.updateFile(file, id);
-        return new SuccessResponse(fileModel);
-    }
-
-    @DeleteMapping("/file/{id}")
-    public void deleteFile(@PathVariable String id) {
-        fileService.delete(id);
     }
 }

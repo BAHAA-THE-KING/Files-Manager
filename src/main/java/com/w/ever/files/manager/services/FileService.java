@@ -1,61 +1,92 @@
 package com.w.ever.files.manager.services;
 
+import com.w.ever.files.manager.dto.files.CreateFileRequestDTO;
 import com.w.ever.files.manager.models.FileModel;
+import com.w.ever.files.manager.models.GroupFileModel;
+import com.w.ever.files.manager.models.GroupModel;
+import com.w.ever.files.manager.models.UserModel;
 import com.w.ever.files.manager.repositories.FileRepository;
-import org.springframework.http.HttpStatus;
+import com.w.ever.files.manager.repositories.GroupFileRepository;
+import com.w.ever.files.manager.repositories.GroupRepository;
+import com.w.ever.files.manager.repositories.GroupUserRepository;
+import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringJoiner;
 
 @Service
 public class FileService {
     private final FileRepository fileRepository;
+    private final GroupRepository groupRepository;
+    private final GroupUserRepository groupUserRepository;
+    private final GroupFileRepository groupFileRepository;
 
-    public FileService(FileRepository fileRepository) {
+    public FileService(FileRepository fileRepository, GroupRepository groupRepository, GroupUserRepository groupUserRepository, GroupFileRepository groupFileRepository) {
         this.fileRepository = fileRepository;
+        this.groupRepository = groupRepository;
+        this.groupUserRepository = groupUserRepository;
+        this.groupFileRepository = groupFileRepository;
     }
 
-    public FileModel getFile(Integer id) {
-        Optional<FileModel> fileModel = fileRepository.findById(id);
-        return fileModel.orElse(null);
-    }
+    public FileModel createFile(CreateFileRequestDTO requestData) throws BadRequestException {
+        // Separate path to use it easily
+        List<String> folders = new ArrayList<>(List.of(requestData.getPath().split("/")));
+        if (folders.get(0).equals("")) {
+            folders.remove(0);
+        }
+        if (folders.get(folders.size() - 1).equals("")) {
+            folders.remove(folders.size() - 1);
+        }
+        // Check if user in group
+        /* TODO: Replace With Real User */
+        UserModel user = new UserModel();
+        user.setId(1);
 
-    public FileModel createFile(FileModel file) {
-        if (file.getParent() != null && file.getParent().getId() != null) {
-            // Fetch the parent entity from the database to make sure it is managed
-            Optional<FileModel> parent = fileRepository.findById(file.getParent().getId());
-            if (parent.isPresent()) {
-                file.setParent(parent.get()); // Set the managed parent entity
-            } else {
-                throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "Parent entity not found");
+        GroupModel group = groupRepository.findById(requestData.getGroupId()).orElse(null);
+        if (group == null) {
+            throw new BadRequestException("Group not found");
+        }
+        if (!groupUserRepository.userJoined(user.getId(), group.getId())) {
+            throw new BadRequestException("User not in group");
+        }
+
+        // Check if path exists
+        Integer parentId = null;
+        for (String name : folders) {
+            FileModel folderExists = fileRepository.findByNameAndParentId(name, parentId);
+            if (folderExists == null) {
+                throw new BadRequestException("Folder Named " + name + " not found");
             }
+            parentId = folderExists.getId();
         }
 
-        // Now save the file entity, with the parent properly attached
-        return fileRepository.save(file);
+        // Add the new file and link it with the parent and the group
+        FileModel parent = new FileModel();
+        parent.setId(parentId);
 
-    }
-
-    public FileModel updateFile(FileModel file, Integer id) {
-        Optional<FileModel> existingFileModelOpt = fileRepository.findById(id);
-        if (existingFileModelOpt.isEmpty()) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        StringJoiner filePath = new StringJoiner("/");
+        for (String folder : folders) {
+            filePath.add(folder);
         }
 
-        // Get the existing entity from the database
-        FileModel existingFileModel = existingFileModelOpt.get();
+        FileModel newFile = new FileModel();
+        newFile.setCreator(user);
+        newFile.setParent(parent);
+        newFile.setPath(filePath.toString());
+        newFile.setExtension("test");
+        newFile.setName("test");
 
-        // Update the fields of the existing entity
-        existingFileModel.setName(file.getName());
-        existingFileModel.setPath(file.getPath());
-        existingFileModel.setParent(file.getParent()); // Handle parent carefully
+        GroupFileModel groupFile = new GroupFileModel();
+        groupFile.setFile(newFile);
+        groupFile.setGroup(group);
+        groupFile.setAddedAt(null);
 
-        // Save the updated entity
-        return fileRepository.save(existingFileModel);
+        groupFileRepository.save(groupFile);
 
-    }
+        fileRepository.save(newFile);
 
-    public void delete(String id) {
+        return newFile;
     }
 }

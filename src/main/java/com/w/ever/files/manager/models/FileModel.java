@@ -25,9 +25,6 @@ public class FileModel {
     @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CheckInModel> checkIns;
 
-    @OneToOne(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
-    private LockModel lock;
-
     @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<FileShareRequestModel> request;
 
@@ -44,6 +41,9 @@ public class FileModel {
 
     @Column(nullable = false)
     private String path;
+
+    @Column(nullable = true)
+    private LocalDateTime addedAt;
 
     public FileModel() {
     }
