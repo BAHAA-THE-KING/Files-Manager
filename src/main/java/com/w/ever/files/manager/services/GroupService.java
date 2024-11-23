@@ -78,7 +78,7 @@ public class GroupService {
 
         /* TODO: Replace with real user from token */
         UserModel fakeUser = new UserModel();
-        fakeUser.setId(2);
+        fakeUser.setId(1);
 
         groupUserModel.setGroup(group);
         groupUserModel.setUser(user);

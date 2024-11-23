@@ -1,6 +1,7 @@
 package com.w.ever.files.manager.controllers;
 
 import com.w.ever.files.manager.dto.files.CreateFileRequestDTO;
+import com.w.ever.files.manager.dto.files.CreateFolderRequestDTO;
 import com.w.ever.files.manager.models.FileModel;
 import com.w.ever.files.manager.responses.SuccessResponse;
 import com.w.ever.files.manager.services.FileService;
@@ -11,6 +12,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,6 +41,12 @@ public class FileController {
         FileModel fileModel = fileService.createFile(requestData.getGroupId(), requestData.getPath(), newPath, requestData.getFile().getOriginalFilename());
 
         /* TODO: Send Notification */
+        return new SuccessResponse(fileModel);
+    }
+
+    @PostMapping("group/folders")
+    public ResponseEntity createFolder(@Valid @RequestBody CreateFolderRequestDTO requestData) throws BadRequestException {
+        FileModel fileModel = fileService.createFolder(requestData.getGroupId(), requestData.getPath());
         return new SuccessResponse(fileModel);
     }
 }

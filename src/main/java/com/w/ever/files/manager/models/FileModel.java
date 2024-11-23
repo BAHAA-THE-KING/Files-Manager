@@ -39,7 +39,7 @@ public class FileModel {
 
     private String extension;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String path;
 
     @Column(nullable = true)

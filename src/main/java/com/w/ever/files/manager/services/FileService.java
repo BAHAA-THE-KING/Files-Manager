@@ -41,7 +41,7 @@ public class FileService {
         // Check if user in group
         /* TODO: Replace With Real User */
         UserModel user = new UserModel();
-        user.setId(2);
+        user.setId(1);
 
         GroupModel group = groupRepository.findById(groupId).orElse(null);
         if (group == null) {
@@ -90,5 +90,58 @@ public class FileService {
         fileRepository.save(newFile);
 
         return newFile;
+    }
+
+    public FileModel createFolder(Integer groupId, String path) throws BadRequestException {
+        // Separate path to use it easily
+        List<String> folders = new ArrayList<>(List.of(path.split("/")));
+        if (folders.get(0).equals("")) {
+            folders.remove(0);
+        }
+        if (folders.get(folders.size() - 1).equals("")) {
+            folders.remove(folders.size() - 1);
+        }
+
+        if (folders.isEmpty()) throw new BadRequestException("Invalid folder tree.");
+
+        // Check if user in group
+        /* TODO: Replace With Real User */
+        UserModel user = new UserModel();
+        user.setId(1);
+
+        GroupModel group = groupRepository.findById(groupId).orElse(null);
+        if (group == null) {
+            throw new BadRequestException("Group not found");
+        }
+        if (!groupUserRepository.userJoined(user.getId(), group.getId())) {
+            throw new BadRequestException("User not in group");
+        }
+
+        // Check if path exists, if not then create it
+        Integer parentId = null;
+        FileModel folderExists = null;
+        for (String name : folders) {
+            if (parentId == null) folderExists = fileRepository.findFolderByNameAndNullParentId(name);
+            else folderExists = fileRepository.findFolderByNameAndParentId(name, parentId);
+            if (folderExists == null) {
+                FileModel newFolder = new FileModel();
+                newFolder.setName(name);
+                newFolder.setAddedAt(LocalDateTime.now());
+                newFolder.setCreator(user);
+                newFolder.setParent(parentId == null ? null : fileRepository.findById(parentId).orElse(null));
+
+                GroupFileModel groupFile = new GroupFileModel();
+                groupFile.setFile(newFolder);
+                groupFile.setGroup(group);
+                groupFile.setAddedAt(LocalDateTime.now());
+
+                groupFileRepository.save(groupFile);
+                fileRepository.save(newFolder);
+                folderExists = newFolder;
+            }
+            parentId = folderExists.getId();
+        }
+
+        return folderExists;
     }
 }
