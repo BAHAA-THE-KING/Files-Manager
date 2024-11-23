@@ -5,26 +5,43 @@ import com.w.ever.files.manager.models.FileModel;
 import com.w.ever.files.manager.responses.SuccessResponse;
 import com.w.ever.files.manager.services.FileService;
 import com.w.ever.files.manager.services.NotificationsService;
+import com.w.ever.files.manager.services.StorageService;
 import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 public class FileController {
     private final FileService fileService;
+    private final StorageService storageService;
     private final NotificationsService notificationsService;
 
-    public FileController(FileService fileService, NotificationsService notificationsService) {
+    public FileController(FileService fileService, StorageService storageService, NotificationsService notificationsService) {
         this.fileService = fileService;
+        this.storageService = storageService;
         this.notificationsService = notificationsService;
     }
 
     @PostMapping("group/file-requests")
-    public ResponseEntity createFileRequest(@Valid @RequestBody CreateFileRequestDTO requestData) throws BadRequestException {
-        FileModel fileModel = fileService.createFile(requestData);
+    public ResponseEntity createFileRequest(@Valid @RequestBody CreateFileRequestDTO requestData) throws IOException {
+        MultipartFile file = requestData.getFile();
+
+        if (file.isEmpty()) {
+            throw new BadRequestException("The file is empty.");
+        }
+        String newPath = storageService.storeFile(file);
+        /* TODO: Test those to get the best value for the name of the file (last param)  */
+        // file.getName();
+        // file.getOriginalFilename();
+        // file.getContentType();
+        FileModel fileModel = fileService.createFile(requestData.getGroupId(), requestData.getPath(), newPath, requestData.getFile().getName());
+
         /* TODO: Send Notification */
         return new SuccessResponse(fileModel);
     }

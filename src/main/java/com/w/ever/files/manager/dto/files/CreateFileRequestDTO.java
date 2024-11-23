@@ -4,6 +4,7 @@ import com.w.ever.files.manager.models.GroupModel;
 import com.w.ever.files.manager.validation.Exists;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class CreateFileRequestDTO {
@@ -12,7 +13,7 @@ public class CreateFileRequestDTO {
     private Integer groupId;
 
     @NotNull(message = "File is required")
-    private byte[] file;
+    private MultipartFile file;
 
     @NotNull(message = "Path is required")
     private String path;

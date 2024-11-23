@@ -1,6 +1,5 @@
 package com.w.ever.files.manager.services;
 
-import com.w.ever.files.manager.dto.files.CreateFileRequestDTO;
 import com.w.ever.files.manager.models.FileModel;
 import com.w.ever.files.manager.models.GroupFileModel;
 import com.w.ever.files.manager.models.GroupModel;
@@ -30,9 +29,9 @@ public class FileService {
         this.groupFileRepository = groupFileRepository;
     }
 
-    public FileModel createFile(CreateFileRequestDTO requestData) throws BadRequestException {
+    public FileModel createFile(Integer groupId, String path, String newPath, String oldName) throws BadRequestException {
         // Separate path to use it easily
-        List<String> folders = new ArrayList<>(List.of(requestData.getPath().split("/")));
+        List<String> folders = new ArrayList<>(List.of(path.split("/")));
         if (folders.get(0).equals("")) {
             folders.remove(0);
         }
@@ -44,7 +43,7 @@ public class FileService {
         UserModel user = new UserModel();
         user.setId(1);
 
-        GroupModel group = groupRepository.findById(requestData.getGroupId()).orElse(null);
+        GroupModel group = groupRepository.findById(groupId).orElse(null);
         if (group == null) {
             throw new BadRequestException("Group not found");
         }
@@ -70,13 +69,14 @@ public class FileService {
         for (String folder : folders) {
             filePath.add(folder);
         }
+        String extension = oldName.split("\\.")[oldName.split("\\.").length - 1];
 
         FileModel newFile = new FileModel();
         newFile.setCreator(user);
         newFile.setParent(parent);
-        newFile.setPath(filePath.toString());
-        newFile.setExtension("test");
-        newFile.setName("test");
+        newFile.setPath(newPath);
+        newFile.setExtension(extension);
+        newFile.setName(oldName);
 
         GroupFileModel groupFile = new GroupFileModel();
         groupFile.setFile(newFile);
