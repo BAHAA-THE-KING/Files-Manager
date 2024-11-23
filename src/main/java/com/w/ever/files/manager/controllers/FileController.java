@@ -9,8 +9,8 @@ import com.w.ever.files.manager.services.StorageService;
 import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,19 +28,15 @@ public class FileController {
         this.notificationsService = notificationsService;
     }
 
-    @PostMapping("group/file-requests")
-    public ResponseEntity createFileRequest(@Valid @RequestBody CreateFileRequestDTO requestData) throws IOException {
+    @PostMapping("group/file-request")
+    public ResponseEntity createFileRequest(@Valid @ModelAttribute CreateFileRequestDTO requestData) throws IOException {
         MultipartFile file = requestData.getFile();
 
         if (file.isEmpty()) {
             throw new BadRequestException("The file is empty.");
         }
         String newPath = storageService.storeFile(file);
-        /* TODO: Test those to get the best value for the name of the file (last param)  */
-        // file.getName();
-        // file.getOriginalFilename();
-        // file.getContentType();
-        FileModel fileModel = fileService.createFile(requestData.getGroupId(), requestData.getPath(), newPath, requestData.getFile().getName());
+        FileModel fileModel = fileService.createFile(requestData.getGroupId(), requestData.getPath(), newPath, requestData.getFile().getOriginalFilename());
 
         /* TODO: Send Notification */
         return new SuccessResponse(fileModel);

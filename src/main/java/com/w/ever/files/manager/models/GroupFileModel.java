@@ -22,7 +22,7 @@ public class GroupFileModel {
     @JoinColumn(name = "file_id", nullable = false)
     private FileModel file;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDateTime addedAt;
 
     public GroupFileModel() {

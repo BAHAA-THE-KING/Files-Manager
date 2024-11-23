@@ -11,9 +11,9 @@ import com.w.ever.files.manager.repositories.GroupUserRepository;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
 
 @Service
 public class FileService {
@@ -41,7 +41,7 @@ public class FileService {
         // Check if user in group
         /* TODO: Replace With Real User */
         UserModel user = new UserModel();
-        user.setId(1);
+        user.setId(2);
 
         GroupModel group = groupRepository.findById(groupId).orElse(null);
         if (group == null) {
@@ -54,22 +54,23 @@ public class FileService {
         // Check if path exists
         Integer parentId = null;
         for (String name : folders) {
-            FileModel folderExists = fileRepository.findByNameAndParentId(name, parentId);
+            FileModel folderExists;
+            if (parentId == null) folderExists = fileRepository.findFolderByNameAndNullParentId(name);
+            else folderExists = fileRepository.findFolderByNameAndParentId(name, parentId);
             if (folderExists == null) {
-                throw new BadRequestException("Folder Named " + name + " not found");
+                throw new BadRequestException("Folder named " + name + " not found");
             }
             parentId = folderExists.getId();
         }
 
         // Add the new file and link it with the parent and the group
-        FileModel parent = new FileModel();
-        parent.setId(parentId);
-
-        StringJoiner filePath = new StringJoiner("/");
-        for (String folder : folders) {
-            filePath.add(folder);
+        FileModel parent = null;
+        if (parentId != null) {
+            parent = fileRepository.findById(parentId).orElse(null);
         }
+
         String extension = oldName.split("\\.")[oldName.split("\\.").length - 1];
+
 
         FileModel newFile = new FileModel();
         newFile.setCreator(user);
@@ -77,11 +78,12 @@ public class FileService {
         newFile.setPath(newPath);
         newFile.setExtension(extension);
         newFile.setName(oldName);
+        newFile.setAddedAt(null);
 
         GroupFileModel groupFile = new GroupFileModel();
         groupFile.setFile(newFile);
         groupFile.setGroup(group);
-        groupFile.setAddedAt(null);
+        groupFile.setAddedAt(LocalDateTime.now());
 
         groupFileRepository.save(groupFile);
 

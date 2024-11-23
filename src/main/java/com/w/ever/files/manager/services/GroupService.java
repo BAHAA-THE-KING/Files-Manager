@@ -62,8 +62,8 @@ public class GroupService {
     }
 
     public GroupUserModel invite(GroupInvitationDTO invitationData) throws BadRequestException {
-        Integer groupId = invitationData.getGroup_id();
-        Integer userId = invitationData.getUser_id();
+        Integer groupId = invitationData.getGroupId();
+        Integer userId = invitationData.getUserId();
 
         if (groupUserRepository.invitationExists(userId, groupId)) {
             throw new BadRequestException("User already invited.");
@@ -76,9 +76,15 @@ public class GroupService {
         GroupModel group = getGroup(groupId);
         UserModel user = userService.getProfile(userId);
 
+        /* TODO: Replace with real user from token */
+        UserModel fakeUser = new UserModel();
+        fakeUser.setId(2);
+
         groupUserModel.setGroup(group);
         groupUserModel.setUser(user);
-        groupUserModel.setInvitationExpiresAt(LocalDateTime.now());
+        groupUserModel.setInviter(fakeUser);
+        groupUserModel.setInvitationExpiresAt(LocalDateTime.now().plusDays(1));
+
         return groupUserRepository.save(groupUserModel);
     }
 

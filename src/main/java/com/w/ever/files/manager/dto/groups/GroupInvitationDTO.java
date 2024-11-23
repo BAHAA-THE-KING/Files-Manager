@@ -10,9 +10,9 @@ import lombok.Data;
 public class GroupInvitationDTO {
     @NotNull(message = "User Id is required")
     @Exists(entity = UserModel.class, fieldName = "id", message = "User ID does not exist")
-    private Integer user_id;
+    private Integer userId;
 
     @NotNull(message = "Group Id is required")
     @Exists(entity = GroupModel.class, fieldName = "id", message = "Group ID does not exist")
-    private Integer group_id;
+    private Integer groupId;
 }
