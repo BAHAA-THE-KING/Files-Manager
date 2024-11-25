@@ -41,7 +41,7 @@ public class FileService {
         // Check if user in group
         /* TODO: Replace With Real User */
         UserModel user = new UserModel();
-        user.setId(1);
+        user.setId(3);
 
         GroupModel group = groupRepository.findById(groupId).orElse(null);
         if (group == null) {
@@ -107,7 +107,7 @@ public class FileService {
         // Check if user in group
         /* TODO: Replace With Real User */
         UserModel user = new UserModel();
-        user.setId(1);
+        user.setId(3);
 
         GroupModel group = groupRepository.findById(groupId).orElse(null);
         if (group == null) {
@@ -143,5 +143,9 @@ public class FileService {
         }
 
         return folderExists;
+    }
+
+    public List<FileModel> getFileRequests(Integer groupId, Integer userId) {
+        return fileRepository.findFileRequestsByUserIdAndGroupId(userId, groupId);
     }
 }

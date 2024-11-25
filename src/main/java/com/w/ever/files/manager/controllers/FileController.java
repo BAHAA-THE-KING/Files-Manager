@@ -8,15 +8,14 @@ import com.w.ever.files.manager.services.FileService;
 import com.w.ever.files.manager.services.NotificationsService;
 import com.w.ever.files.manager.services.StorageService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 public class FileController {
@@ -48,5 +47,11 @@ public class FileController {
     public ResponseEntity createFolder(@Valid @RequestBody CreateFolderRequestDTO requestData) throws BadRequestException {
         FileModel fileModel = fileService.createFolder(requestData.getGroupId(), requestData.getPath());
         return new SuccessResponse(fileModel);
+    }
+
+    @GetMapping("group/{groupId}/file-requests/{userId}")
+    public ResponseEntity getFileRequests(@PathVariable @NotNull Integer groupId, @PathVariable @NotNull Integer userId) {
+        List<FileModel> requests = fileService.getFileRequests(groupId, userId);
+        return new SuccessResponse(requests);
     }
 }
