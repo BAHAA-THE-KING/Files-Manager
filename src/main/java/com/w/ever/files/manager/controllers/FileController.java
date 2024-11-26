@@ -66,4 +66,17 @@ public class FileController {
         List<FileModel> requests = fileService.getFileRequestsForUser(userId);
         return new SuccessResponse(requests);
     }
+
+    @GetMapping("file-requests/{fileRequestId}")
+    public ResponseEntity getFileRequest(@PathVariable Integer fileRequestId) throws BadRequestException {
+        FileModel fileRequest = fileService.getFileRequest(fileRequestId);
+        return new SuccessResponse(fileRequest);
+    }
+
+    @PostMapping("file-requests/{fileRequestId}")
+    public ResponseEntity acceptFileRequest(@PathVariable Integer fileRequestId) throws BadRequestException {
+        FileModel acceptedFile = fileService.acceptFileRequest(fileRequestId);
+        /* TODO: Send a notification */
+        return new SuccessResponse(acceptedFile);
+    }
 }

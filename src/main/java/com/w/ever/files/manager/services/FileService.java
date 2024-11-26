@@ -55,8 +55,9 @@ public class FileService {
         Integer parentId = null;
         for (String name : folders) {
             FileModel folderExists;
-            if (parentId == null) folderExists = fileRepository.findFolderByNameAndNullParentId(name);
-            else folderExists = fileRepository.findFolderByNameAndParentId(name, parentId);
+            if (parentId == null)
+                folderExists = fileRepository.findByNameAndParentIdIsNullAndPathIsNull(name).orElse(null);
+            else folderExists = fileRepository.findByNameAndParentIdAndPathIsNull(name, parentId).orElse(null);
             if (folderExists == null) {
                 throw new BadRequestException("Folder named " + name + " not found");
             }
@@ -121,8 +122,9 @@ public class FileService {
         Integer parentId = null;
         FileModel folderExists = null;
         for (String name : folders) {
-            if (parentId == null) folderExists = fileRepository.findFolderByNameAndNullParentId(name);
-            else folderExists = fileRepository.findFolderByNameAndParentId(name, parentId);
+            if (parentId == null)
+                folderExists = fileRepository.findByNameAndParentIdIsNullAndPathIsNull(name).orElse(null);
+            else folderExists = fileRepository.findByNameAndParentIdAndPathIsNull(name, parentId).orElse(null);
             if (folderExists == null) {
                 FileModel newFolder = new FileModel();
                 newFolder.setName(name);
@@ -146,14 +148,27 @@ public class FileService {
     }
 
     public List<FileModel> getFileRequestsForGroupAndUser(Integer groupId, Integer userId) {
-        return fileRepository.findFileRequestsByUserIdAndGroupId(userId, groupId);
+        return fileRepository.findByAddedAtIsNullAndCreatorIdAndGroupFilesGroupId(userId, groupId);
     }
 
     public List<FileModel> getFileRequestsForGroup(Integer groupId) {
-        return fileRepository.findFileRequestsByGroupId(groupId);
+        return fileRepository.findByAddedAtIsNullAndGroupFilesGroupId(groupId);
     }
 
     public List<FileModel> getFileRequestsForUser(Integer userId) {
-        return fileRepository.findFileRequestsByUserId(userId);
+        return fileRepository.findByCreatorIdAndAddedAtIsNull(userId);
+    }
+
+    public FileModel getFileRequest(Integer fileRequestId) throws BadRequestException {
+        FileModel fileRequest = fileRepository.findByIdAndAddedAtIsNull(fileRequestId).orElse(null);
+        if (fileRequest == null) throw new BadRequestException("File request not found");
+        return fileRequest;
+    }
+
+    public FileModel acceptFileRequest(Integer fileRequestId) throws BadRequestException {
+        FileModel fileRequest = getFileRequest(fileRequestId);
+        fileRequest.setAddedAt(LocalDateTime.now());
+        fileRepository.save(fileRequest);
+        return fileRequest;
     }
 }
