@@ -18,4 +18,10 @@ public interface FileRepository extends CrudRepository<FileModel, Integer> {
 
     @Query("SELECT f FROM FileModel f JOIN f.groupFiles gf JOIN gf.group g WHERE f.addedAt IS NULL AND f.creator.id = :userId AND g.id = :groupId")
     List<FileModel> findFileRequestsByUserIdAndGroupId(@Param("userId") Integer userId, @Param("groupId") Integer groupId);
+
+    @Query("SELECT f FROM FileModel f JOIN f.groupFiles gf JOIN gf.group g WHERE f.addedAt IS NULL AND g.id = :groupId")
+    List<FileModel> findFileRequestsByGroupId(@Param("groupId") Integer groupId);
+
+    @Query("SELECT f FROM FileModel f WHERE f.addedAt IS NULL AND f.creator.id = :userId")
+    List<FileModel> findFileRequestsByUserId(@Param("userId") Integer userId);
 }

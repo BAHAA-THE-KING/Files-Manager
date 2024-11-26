@@ -145,7 +145,15 @@ public class FileService {
         return folderExists;
     }
 
-    public List<FileModel> getFileRequests(Integer groupId, Integer userId) {
+    public List<FileModel> getFileRequestsForGroupAndUser(Integer groupId, Integer userId) {
         return fileRepository.findFileRequestsByUserIdAndGroupId(userId, groupId);
+    }
+
+    public List<FileModel> getFileRequestsForGroup(Integer groupId) {
+        return fileRepository.findFileRequestsByGroupId(groupId);
+    }
+
+    public List<FileModel> getFileRequestsForUser(Integer userId) {
+        return fileRepository.findFileRequestsByUserId(userId);
     }
 }

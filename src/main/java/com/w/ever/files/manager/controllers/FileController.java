@@ -50,8 +50,20 @@ public class FileController {
     }
 
     @GetMapping("group/{groupId}/file-requests/{userId}")
-    public ResponseEntity getFileRequests(@PathVariable @NotNull Integer groupId, @PathVariable @NotNull Integer userId) {
-        List<FileModel> requests = fileService.getFileRequests(groupId, userId);
+    public ResponseEntity getFileRequestsForGroupAndUser(@PathVariable @NotNull Integer groupId, @PathVariable @NotNull Integer userId) {
+        List<FileModel> requests = fileService.getFileRequestsForGroupAndUser(groupId, userId);
+        return new SuccessResponse(requests);
+    }
+
+    @GetMapping("group/{groupId}/file-requests")
+    public ResponseEntity getFileRequestsForGroup(@PathVariable Integer groupId) {
+        List<FileModel> requests = fileService.getFileRequestsForGroup(groupId);
+        return new SuccessResponse(requests);
+    }
+
+    @GetMapping("user/{userId}/file-requests")
+    public ResponseEntity getFileRequestsForUser(@PathVariable Integer userId) {
+        List<FileModel> requests = fileService.getFileRequestsForUser(userId);
         return new SuccessResponse(requests);
     }
 }
