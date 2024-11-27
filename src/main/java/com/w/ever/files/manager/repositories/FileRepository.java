@@ -59,4 +59,12 @@ public interface FileRepository extends CrudRepository<FileModel, Integer> {
      * @return an {@code Optional} containing the matching {@code FileModel} if found, or empty if no match is found.
      */
     Optional<FileModel> findByIdAndAddedAtIsNull(Integer id);
+
+    /**
+     * Get all files by their ids.
+     *
+     * @param id a list of the files ids
+     * @return a list of FileModel
+     */
+    List<FileModel> findAllByIdIn(List<Integer> id);
 }

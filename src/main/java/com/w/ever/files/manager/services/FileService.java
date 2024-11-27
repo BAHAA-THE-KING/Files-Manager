@@ -1,19 +1,14 @@
 package com.w.ever.files.manager.services;
 
-import com.w.ever.files.manager.models.FileModel;
-import com.w.ever.files.manager.models.GroupFileModel;
-import com.w.ever.files.manager.models.GroupModel;
-import com.w.ever.files.manager.models.UserModel;
-import com.w.ever.files.manager.repositories.FileRepository;
-import com.w.ever.files.manager.repositories.GroupFileRepository;
-import com.w.ever.files.manager.repositories.GroupRepository;
-import com.w.ever.files.manager.repositories.GroupUserRepository;
+import com.w.ever.files.manager.models.*;
+import com.w.ever.files.manager.repositories.*;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class FileService {
@@ -21,12 +16,16 @@ public class FileService {
     private final GroupRepository groupRepository;
     private final GroupUserRepository groupUserRepository;
     private final GroupFileRepository groupFileRepository;
+    private final FileHistoryRepository fileHistoryRepository;
+    private final CheckInRepository checkInRepository;
 
-    public FileService(FileRepository fileRepository, GroupRepository groupRepository, GroupUserRepository groupUserRepository, GroupFileRepository groupFileRepository) {
+    public FileService(FileRepository fileRepository, GroupRepository groupRepository, GroupUserRepository groupUserRepository, GroupFileRepository groupFileRepository, FileHistoryRepository fileHistoryRepository, CheckInRepository checkInRepository) {
         this.fileRepository = fileRepository;
         this.groupRepository = groupRepository;
         this.groupUserRepository = groupUserRepository;
         this.groupFileRepository = groupFileRepository;
+        this.fileHistoryRepository = fileHistoryRepository;
+        this.checkInRepository = checkInRepository;
     }
 
     public FileModel createFile(Integer groupId, String path, String newPath, String oldName) throws BadRequestException {
@@ -166,9 +165,31 @@ public class FileService {
     }
 
     public FileModel acceptFileRequest(Integer fileRequestId) throws BadRequestException {
+        // Set a value to addedAt field
         FileModel fileRequest = getFileRequest(fileRequestId);
         fileRequest.setAddedAt(LocalDateTime.now());
         fileRepository.save(fileRequest);
+
+        // Create a history record
+        FileHistoryModel history = new FileHistoryModel();
+        history.setFile(fileRequest);
+        history.setPath(fileRequest.getPath());
+        history.setVersion("1");
+        history.setCreatedAt(LocalDateTime.now());
+        fileHistoryRepository.save(history);
+
         return fileRequest;
+    }
+
+    public List<CheckInModel> reserveFiles(List<Integer> filesIds) throws BadRequestException {
+        List<FileModel> files = fileRepository.findAllByIdIn(filesIds);
+        if (files.size() != filesIds.size()) throw new BadRequestException("Some files doesn't exist");
+
+        List<CheckInModel> checkIns = new ArrayList<>();
+        for (FileModel file : files) {
+            Set<CheckInModel> checkInsForFile = file.getCheckIns();
+            //checkInsForFile.iterator()
+        }
+        return checkIns;
     }
 }

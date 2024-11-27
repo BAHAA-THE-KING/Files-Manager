@@ -2,6 +2,8 @@ package com.w.ever.files.manager.controllers;
 
 import com.w.ever.files.manager.dto.files.CreateFileRequestDTO;
 import com.w.ever.files.manager.dto.files.CreateFolderRequestDTO;
+import com.w.ever.files.manager.dto.files.ReserveFilesDTO;
+import com.w.ever.files.manager.models.CheckInModel;
 import com.w.ever.files.manager.models.FileModel;
 import com.w.ever.files.manager.responses.SuccessResponse;
 import com.w.ever.files.manager.services.FileService;
@@ -78,5 +80,12 @@ public class FileController {
         FileModel acceptedFile = fileService.acceptFileRequest(fileRequestId);
         /* TODO: Send a notification */
         return new SuccessResponse(acceptedFile);
+    }
+
+    @PostMapping("check-in")
+    public ResponseEntity reserveFiles(@Valid @RequestBody ReserveFilesDTO requestData) throws BadRequestException {
+        List<Integer> filesIds = requestData.getFilesIds();
+        List<CheckInModel> checkIns = fileService.reserveFiles(filesIds);
+        return new SuccessResponse(checkIns);
     }
 }
