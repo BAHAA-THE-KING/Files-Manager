@@ -4,11 +4,13 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class NotificationsService {
 
     // Send notification to a single user
+    @Transactional
     public void sendNotificationToUser(String token, String title, String body) {
         try {
             // Create notification for a single user
@@ -28,6 +30,7 @@ public class NotificationsService {
     }
 
     // Send notification to a group of users (topic)
+    @Transactional
     public void sendNotificationToGroup(String topic, String title, String body) {
         try {
             // Create notification for a group of users

@@ -8,9 +8,8 @@ import com.w.ever.files.manager.repositories.GroupUserRepository;
 import com.w.ever.files.manager.repositories.UserRepository;
 import com.w.ever.files.manager.utiles.JwtTokenUtil;
 import org.apache.coyote.BadRequestException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -20,30 +19,30 @@ import java.util.Map;
 public class UserService {
     private final UserRepository userRepository;
     private final GroupUserRepository groupUserRepository;
+    private final JwtTokenUtil jwtTokenUtil;
 
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
-
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-    public UserService(UserRepository userRepository, GroupUserRepository groupUserRepository) {
+    public UserService(UserRepository userRepository, GroupUserRepository groupUserRepository, JwtTokenUtil jwtTokenUtil) {
         this.userRepository = userRepository;
         this.groupUserRepository = groupUserRepository;
+        this.jwtTokenUtil = jwtTokenUtil;
     }
 
+    @Transactional
     public UserModel getProfile(Integer id) {
         return userRepository.findById(id).orElse(null);
     }
 
+    @Transactional
     public Map register(RegisterDTO userData) {
         UserModel user = userRepository.save(new UserModel(userData.getName(), userData.getUsername(), userData.getEmail(), userData.getPassword()));
         /* TODO: Give Him A Token */
-        return new HashMap<Object,Object>(){{
-            put("token",jwtTokenUtil.generateToken(user.getId()));
-            put("model",user);
+        return new HashMap<Object, Object>() {{
+            put("token", jwtTokenUtil.generateToken(user.getId()));
+            put("model", user);
         }};
     }
 
+    @Transactional
     public UserModel updateUser(Integer id, UpdateUserDTO userData) throws BadRequestException {
         UserModel user = getProfile(id);
         if (user == null) throw new BadRequestException("User Doesn't Exist");
@@ -75,6 +74,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional
     public void deleteUser(Integer id) throws BadRequestException {
         if (!userRepository.exists(id)) {
             throw new BadRequestException("User doesn't exist.");
@@ -83,16 +83,19 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
+    @Transactional
     public boolean isEmailUnique(String email, Integer id) {
         if (email == null) return true;
         return !userRepository.existsByEmailAndNotUserId(email, id);
     }
 
+    @Transactional
     public boolean isUsernameUnique(String username, Integer id) {
         if (username == null) return true;
         return !userRepository.existsByUsernameAndNotUserId(username, id);
     }
 
+    @Transactional
     public void acceptInvitation(Integer invitationId) throws BadRequestException {
         GroupUserModel invitation = groupUserRepository.findById(invitationId).orElse(null);
         if (invitation == null) throw new BadRequestException("Invitation ID is invalid");

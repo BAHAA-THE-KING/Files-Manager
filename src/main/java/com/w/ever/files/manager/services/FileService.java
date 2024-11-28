@@ -4,6 +4,7 @@ import com.w.ever.files.manager.models.*;
 import com.w.ever.files.manager.repositories.*;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class FileService {
         this.checkInRepository = checkInRepository;
     }
 
+    @Transactional
     public FileModel createFile(Integer groupId, String path, String newPath, String oldName) throws BadRequestException {
         // Separate path to use it easily
         List<String> folders = new ArrayList<>(List.of(path.split("/")));
@@ -93,6 +95,7 @@ public class FileService {
         return newFile;
     }
 
+    @Transactional
     public FileModel createFolder(Integer groupId, String path) throws BadRequestException {
         // Separate path to use it easily
         List<String> folders = new ArrayList<>(List.of(path.split("/")));
@@ -147,24 +150,29 @@ public class FileService {
         return folderExists;
     }
 
+    @Transactional
     public List<FileModel> getFileRequestsForGroupAndUser(Integer groupId, Integer userId) {
         return fileRepository.findByAddedAtIsNullAndCreatorIdAndGroupFilesGroupId(userId, groupId);
     }
 
+    @Transactional
     public List<FileModel> getFileRequestsForGroup(Integer groupId) {
         return fileRepository.findByAddedAtIsNullAndGroupFilesGroupId(groupId);
     }
 
+    @Transactional
     public List<FileModel> getFileRequestsForUser(Integer userId) {
         return fileRepository.findByCreatorIdAndAddedAtIsNull(userId);
     }
 
+    @Transactional
     public FileModel getFileRequest(Integer fileRequestId) throws BadRequestException {
         FileModel fileRequest = fileRepository.findByIdAndAddedAtIsNull(fileRequestId).orElse(null);
         if (fileRequest == null) throw new BadRequestException("File request not found");
         return fileRequest;
     }
 
+    @Transactional
     public FileModel acceptFileRequest(Integer fileRequestId) throws BadRequestException {
         // Set a value to addedAt field
         FileModel fileRequest = getFileRequest(fileRequestId);
@@ -182,6 +190,7 @@ public class FileService {
         return fileRequest;
     }
 
+    @Transactional
     public List<CheckInModel> reserveFiles(List<Integer> filesIds) throws BadRequestException {
         List<FileModel> files = fileRepository.findAllByIdInAndAddedAtNotNullAndPathNotNull(filesIds);
         if (files.size() != filesIds.size()) throw new BadRequestException("Some files doesn't exist");

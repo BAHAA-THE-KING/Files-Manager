@@ -1,6 +1,7 @@
 package com.w.ever.files.manager.services;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -15,6 +16,7 @@ import java.nio.file.StandardCopyOption;
 public class StorageService {
     private final Path rootLocation = new File("").toPath();
 
+    @Transactional
     public String storeFile(MultipartFile file) throws IOException {
         Path destinationFile = this.rootLocation.resolve(Paths.get(file.getOriginalFilename())).normalize().toAbsolutePath();
 //            if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {

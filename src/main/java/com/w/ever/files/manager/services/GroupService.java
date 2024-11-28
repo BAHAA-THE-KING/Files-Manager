@@ -10,6 +10,7 @@ import com.w.ever.files.manager.repositories.GroupRepository;
 import com.w.ever.files.manager.repositories.GroupUserRepository;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -25,6 +26,7 @@ public class GroupService {
         this.groupUserRepository = groupUserRepository;
     }
 
+    @Transactional
     public GroupModel createGroup(CreateGroupDTO groupData) throws BadRequestException {
         UserModel userModel = userService.getProfile(groupData.getCreator_id());
         if (userModel == null) throw new BadRequestException("Creator Not Found");
@@ -32,10 +34,12 @@ public class GroupService {
         return groupRepository.save(groupModel);
     }
 
+    @Transactional
     public GroupModel getGroup(Integer id) {
         return groupRepository.findById(id).orElse(null);
     }
 
+    @Transactional
     public GroupModel updateGroup(Integer id, UpdateGroupDTO groupData) throws BadRequestException {
         GroupModel group = getGroup(id);
         if (group == null) throw new BadRequestException("Group Doesn't Exist");
@@ -61,6 +65,7 @@ public class GroupService {
         return groupRepository.save(group);
     }
 
+    @Transactional
     public GroupUserModel invite(GroupInvitationDTO invitationData) throws BadRequestException {
         Integer groupId = invitationData.getGroupId();
         Integer userId = invitationData.getUserId();
@@ -88,7 +93,7 @@ public class GroupService {
         return groupUserRepository.save(groupUserModel);
     }
 
-
+    @Transactional
     public void deleteGroup(Integer id) throws BadRequestException {
         if (!groupRepository.exists(id)) {
             throw new BadRequestException("Group doesn't exist.");
@@ -97,6 +102,7 @@ public class GroupService {
         groupRepository.deleteById(id);
     }
 
+    @Transactional
     public boolean isNameUnique(String name, Integer id) {
         if (name == null) return true;
         return !groupRepository.existsByNameAndNotGroupId(name, id);
