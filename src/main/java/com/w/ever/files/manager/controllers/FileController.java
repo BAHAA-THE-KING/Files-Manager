@@ -12,11 +12,14 @@ import com.w.ever.files.manager.services.StorageService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.apache.coyote.BadRequestException;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
 
 @RestController
@@ -87,5 +90,14 @@ public class FileController {
         List<Integer> filesIds = requestData.getFilesIds();
         List<CheckInModel> checkIns = fileService.reserveFiles(filesIds);
         return new SuccessResponse(checkIns);
+    }
+
+    @GetMapping("/files/{filename}")
+    public ResponseEntity getFile(@PathVariable String filename) throws BadRequestException, MalformedURLException {
+        Resource resource = fileService.getFile(filename);
+        if (!resource.exists()) throw new BadRequestException("File not found");
+
+        // Respond with the file
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"").body(resource);
     }
 }

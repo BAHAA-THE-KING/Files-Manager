@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 @Service
 public class StorageService {
@@ -21,8 +22,18 @@ public class StorageService {
         // Make sure the directory exists
         Files.createDirectories(rootLocation);
 
+        // Extract the file extension
+        String originalFilename = file.getOriginalFilename();
+        String extension = "";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
+
+        // Generate a unique file name
+        String uniqueFileName = UUID.randomUUID() + extension;
+
         // Create the destination file path
-        Path destinationFile = this.rootLocation.resolve(Paths.get(file.getOriginalFilename())).normalize().toAbsolutePath();
+        Path destinationFile = this.rootLocation.resolve(Paths.get(uniqueFileName)).normalize().toAbsolutePath();
 
         // Check for directory traversal attack
         if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
@@ -35,6 +46,6 @@ public class StorageService {
         }
 
         // Return the path where the file is stored (relative URL for serving)
-        return "/uploads/" + file.getOriginalFilename();
+        return "/uploads/" + uniqueFileName;
     }
 }

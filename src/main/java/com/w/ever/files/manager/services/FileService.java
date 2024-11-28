@@ -3,9 +3,15 @@ package com.w.ever.files.manager.services;
 import com.w.ever.files.manager.models.*;
 import com.w.ever.files.manager.repositories.*;
 import org.apache.coyote.BadRequestException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +25,8 @@ public class FileService {
     private final FileHistoryRepository fileHistoryRepository;
     private final UserService userService;
     private final CheckInRepository checkInRepository;
+    @Value("${file.storage.location:src/main/resources/static/uploads}")
+    private String fileStorageLocation;
 
     public FileService(FileRepository fileRepository, GroupRepository groupRepository, GroupUserRepository groupUserRepository, GroupFileRepository groupFileRepository, FileHistoryRepository fileHistoryRepository, UserService userService, CheckInRepository checkInRepository) {
         this.fileRepository = fileRepository;
@@ -213,5 +221,16 @@ public class FileService {
             checkIns.add(newCheckIn);
         }
         return checkIns;
+    }
+
+    @Transactional
+    public Resource getFile(String pathName) throws MalformedURLException {
+        /* TODO: Check if user can access th file */
+
+        // Build file path
+        Path filePath = Paths.get(fileStorageLocation).resolve(pathName).normalize();
+
+        // Load the file as a Resource
+        return new UrlResource(filePath.toUri());
     }
 }
