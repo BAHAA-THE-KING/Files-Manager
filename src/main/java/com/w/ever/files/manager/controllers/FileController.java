@@ -92,9 +92,9 @@ public class FileController {
         return new SuccessResponse(checkIns);
     }
 
-    @GetMapping("/files/{filename}")
-    public ResponseEntity getFile(@PathVariable String filename) throws BadRequestException, MalformedURLException {
-        Resource resource = fileService.getFile(filename);
+    @GetMapping("/files/{fileId}")
+    public ResponseEntity getFile(@PathVariable Integer fileId) throws BadRequestException, MalformedURLException {
+        Resource resource = fileService.getFile(fileId);
         if (!resource.exists()) throw new BadRequestException("File not found");
 
         // Respond with the file

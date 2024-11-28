@@ -184,6 +184,10 @@ public class FileService {
     public FileModel acceptFileRequest(Integer fileRequestId) throws BadRequestException {
         // Set a value to addedAt field
         FileModel fileRequest = getFileRequest(fileRequestId);
+
+        /* TODO: Get the real user and check if the admin */
+        UserModel user = userService.getProfile(1);
+
         fileRequest.setAddedAt(LocalDateTime.now());
         fileRepository.save(fileRequest);
 
@@ -224,11 +228,15 @@ public class FileService {
     }
 
     @Transactional
-    public Resource getFile(String pathName) throws MalformedURLException {
-        /* TODO: Check if user can access th file */
+    public Resource getFile(Integer fileId) throws MalformedURLException, BadRequestException {
+        FileModel file = fileRepository.findByIdAndPathNotNullAndAddedAtNotNull(fileId).orElse(null);
+        if (file == null) throw new BadRequestException("File not found");
 
         // Build file path
+        String pathName = file.getPath().split("/uploads/")[1];
         Path filePath = Paths.get(fileStorageLocation).resolve(pathName).normalize();
+
+        /* TODO: Check if user can access th file */
 
         // Load the file as a Resource
         return new UrlResource(filePath.toUri());

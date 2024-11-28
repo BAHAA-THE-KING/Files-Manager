@@ -71,4 +71,12 @@ public interface FileRepository extends CrudRepository<FileModel, Integer> {
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<FileModel> findAllByIdInAndAddedAtNotNullAndPathNotNull(List<Integer> id);
+
+    /**
+     * Get a file by its id, not folders, not file requests.
+     *
+     * @param id the id of the file
+     * @return a FileModel | null
+     */
+    Optional<FileModel> findByIdAndPathNotNullAndAddedAtNotNull(Integer id);
 }
