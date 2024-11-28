@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class FileService {
@@ -17,14 +16,16 @@ public class FileService {
     private final GroupUserRepository groupUserRepository;
     private final GroupFileRepository groupFileRepository;
     private final FileHistoryRepository fileHistoryRepository;
+    private final UserService userService;
     private final CheckInRepository checkInRepository;
 
-    public FileService(FileRepository fileRepository, GroupRepository groupRepository, GroupUserRepository groupUserRepository, GroupFileRepository groupFileRepository, FileHistoryRepository fileHistoryRepository, CheckInRepository checkInRepository) {
+    public FileService(FileRepository fileRepository, GroupRepository groupRepository, GroupUserRepository groupUserRepository, GroupFileRepository groupFileRepository, FileHistoryRepository fileHistoryRepository, UserService userService, CheckInRepository checkInRepository) {
         this.fileRepository = fileRepository;
         this.groupRepository = groupRepository;
         this.groupUserRepository = groupUserRepository;
         this.groupFileRepository = groupFileRepository;
         this.fileHistoryRepository = fileHistoryRepository;
+        this.userService = userService;
         this.checkInRepository = checkInRepository;
     }
 
@@ -182,13 +183,25 @@ public class FileService {
     }
 
     public List<CheckInModel> reserveFiles(List<Integer> filesIds) throws BadRequestException {
-        List<FileModel> files = fileRepository.findAllByIdIn(filesIds);
+        List<FileModel> files = fileRepository.findAllByIdInAndAddedAtNotNullAndPathNotNull(filesIds);
         if (files.size() != filesIds.size()) throw new BadRequestException("Some files doesn't exist");
+
+        /* TODO: Get the real user */
+        UserModel user = userService.getProfile(1);
 
         List<CheckInModel> checkIns = new ArrayList<>();
         for (FileModel file : files) {
-            Set<CheckInModel> checkInsForFile = file.getCheckIns();
-            //checkInsForFile.iterator()
+            List<CheckInModel> checkInsForFile = file.getCheckIns();
+            CheckInModel lastCheckIn = checkInsForFile.size() == 0 ? null : checkInsForFile.get(checkInsForFile.size() - 1);
+            if (lastCheckIn != null && lastCheckIn.getCheckedOutAt() == null) {
+                throw new BadRequestException("File " + file.getName() + " is reserved");
+            }
+            CheckInModel newCheckIn = new CheckInModel();
+            newCheckIn.setCheckedInAt(LocalDateTime.now());
+            newCheckIn.setFile(file);
+            newCheckIn.setUser(user);
+            checkInRepository.save(newCheckIn);
+            checkIns.add(newCheckIn);
         }
         return checkIns;
     }

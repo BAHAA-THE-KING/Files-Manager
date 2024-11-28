@@ -1,6 +1,8 @@
 package com.w.ever.files.manager.repositories;
 
 import com.w.ever.files.manager.models.FileModel;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -61,10 +63,12 @@ public interface FileRepository extends CrudRepository<FileModel, Integer> {
     Optional<FileModel> findByIdAndAddedAtIsNull(Integer id);
 
     /**
-     * Get all files by their ids.
+     * Get all files by their ids, not folders, not file requests.
+     * Also, it locks read/write rows by other transactions.
      *
      * @param id a list of the files ids
      * @return a list of FileModel
      */
-    List<FileModel> findAllByIdIn(List<Integer> id);
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    List<FileModel> findAllByIdInAndAddedAtNotNullAndPathNotNull(List<Integer> id);
 }

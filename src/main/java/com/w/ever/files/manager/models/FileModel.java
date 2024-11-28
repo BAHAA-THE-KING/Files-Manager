@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table(name = "files")
@@ -18,21 +18,24 @@ public class FileModel {
     @JoinColumn(name = "parent_id")
     private FileModel parent;
 
+    @OneToMany(mappedBy = "parent")
+    private List<FileModel> children;
+
     @ManyToOne
     @JoinColumn(name = "creator_id", nullable = false)
     private UserModel creator;
 
     @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CheckInModel> checkIns;
+    private List<CheckInModel> checkIns;
 
     @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<FileShareRequestModel> request;
+    private List<FileShareRequestModel> request;
 
     @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<GroupFileModel> groupFiles;
+    private List<GroupFileModel> groupFiles;
 
     @OneToMany(mappedBy = "file", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<FileHistoryModel> history;
+    private List<FileHistoryModel> history;
 
     @Column(length = 200, nullable = false)
     private String name;
