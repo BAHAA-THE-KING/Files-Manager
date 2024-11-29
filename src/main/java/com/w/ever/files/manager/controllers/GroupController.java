@@ -8,6 +8,7 @@ import com.w.ever.files.manager.models.GroupUserModel;
 import com.w.ever.files.manager.responses.ErrorResponse;
 import com.w.ever.files.manager.responses.SuccessResponse;
 import com.w.ever.files.manager.services.GroupService;
+import com.w.ever.files.manager.services.NotificationsService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.apache.coyote.BadRequestException;
@@ -18,9 +19,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("group")
 public class GroupController {
     private final GroupService groupService;
+    private final NotificationsService notificationsService;
 
-    public GroupController(GroupService groupService) {
+    public GroupController(GroupService groupService, NotificationsService notificationsService) {
         this.groupService = groupService;
+        this.notificationsService = notificationsService;
     }
 
 
@@ -42,18 +45,21 @@ public class GroupController {
     @PutMapping("{id}")
     public ResponseEntity updateGroup(@Valid @RequestBody UpdateGroupDTO groupData, @PathVariable @NotNull(message = "Group ID cannot be null") Integer id) throws BadRequestException {
         GroupModel GroupModel = groupService.updateGroup(id, groupData);
+        /* TODO: Send Notifications */
         return new SuccessResponse(GroupModel);
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity deleteGroup(@PathVariable @NotNull(message = "Group ID cannot be null") Integer id) throws BadRequestException {
         groupService.deleteGroup(id);
+        /* TODO: Send Notifications */
         return new SuccessResponse();
     }
 
     @PostMapping("invite")
     public ResponseEntity createInvitation(@Valid @RequestBody GroupInvitationDTO invitationData) throws BadRequestException {
         GroupUserModel groupUserModel = groupService.invite(invitationData);
+        /* TODO: Send Notification */
         return new SuccessResponse(groupUserModel);
     }
 }
