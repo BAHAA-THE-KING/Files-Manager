@@ -15,17 +15,17 @@ import java.util.HashMap;
 
 @Service
 public class AuthService {
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public ResponseEntity login(String username, String password){
-        UserModel user = userRepository.findUserByUsername(username).orElse(null);
-        if(user==null){
+    public ResponseEntity login(String email, String password) {
+        UserModel user = userRepository.findUserByEmail(email).orElse(null);
+        if (user == null) {
             throw new ErrorResponseException("Wrong credentials");
         }
         if (!passwordEncoder.matches(password, user.getPassword())) {
@@ -33,7 +33,7 @@ public class AuthService {
         }
         return new SuccessResponse(new HashMap<String, Object>() {{
             put("token", jwtTokenUtil.generateToken(user.getId()));
-            put("user",user);
+            put("user", user);
         }});
     }
 
