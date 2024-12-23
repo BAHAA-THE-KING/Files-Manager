@@ -20,11 +20,9 @@ import java.util.Map;
 public class UserService {
     private final UserRepository userRepository;
     private final GroupUserRepository groupUserRepository;
-
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
-
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public UserService(UserRepository userRepository, GroupUserRepository groupUserRepository) {
         this.userRepository = userRepository;
@@ -36,11 +34,15 @@ public class UserService {
     }
 
     public Map register(RegisterDTO userData) {
-        UserModel user = userRepository.save(new UserModel(userData.getName(), userData.getUsername(), userData.getEmail(), userData.getPassword()));
+        String name = userData.getName();
+        String username = userData.getUsername();
+        String email = userData.getEmail();
+        String password = passwordEncoder.encode(userData.getPassword());
+        UserModel user = userRepository.save(new UserModel(name, username, email, password));
         /* TODO: Give Him A Token */
-        return new HashMap<Object,Object>(){{
-            put("token",jwtTokenUtil.generateToken(user.getId()));
-            put("model",user);
+        return new HashMap<Object, Object>() {{
+            put("token", jwtTokenUtil.generateToken(user.getId()));
+            put("model", user);
         }};
     }
 
