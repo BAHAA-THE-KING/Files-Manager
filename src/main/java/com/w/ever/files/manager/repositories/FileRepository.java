@@ -79,4 +79,12 @@ public interface FileRepository extends CrudRepository<FileModel, Integer> {
      * @return a FileModel | null
      */
     Optional<FileModel> findByIdAndPathNotNullAndAddedAtNotNull(Integer id);
+
+    /**
+     * Get a folder by its id, not files, not file requests.
+     *
+     * @param id the id of the folder
+     * @return a FileModel | null
+     */
+    Optional<FileModel> findByIdAndPathIsNullAndAddedAtNotNullAndExtensionIsNull(Integer id);
 }

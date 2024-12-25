@@ -20,21 +20,21 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final GroupUserRepository groupUserRepository;
     private final UserService userService;
+    private final AuthService authService;
     private final UserRepository userRepository;
 
-    public GroupService(GroupRepository groupRepository, UserService userService, GroupUserRepository groupUserRepository, UserRepository userRepository) {
+    public GroupService(GroupRepository groupRepository, UserService userService, GroupUserRepository groupUserRepository, AuthService authService, UserRepository userRepository) {
         this.groupRepository = groupRepository;
         this.userService = userService;
         this.groupUserRepository = groupUserRepository;
+        this.authService = authService;
         this.userRepository = userRepository;
     }
 
     @Transactional
     public GroupModel createGroup(CreateGroupDTO groupData) throws BadRequestException {
-        //TODO: get user from token instead of request
         UserModel userModel = userService.getProfile(groupData.getCreator_id());
         if (userModel == null) throw new BadRequestException("Creator Not Found");
-
         GroupModel groupModel = new GroupModel(groupData.getName(), userModel, groupData.getDescription(), groupData.getColor(), groupData.getLang());
 
         groupRepository.save(groupModel);
@@ -92,13 +92,11 @@ public class GroupService {
         GroupModel group = getGroup(groupId);
         UserModel user = userService.getProfile(userId);
 
-        /* TODO: Replace with real user from token */
-        UserModel fakeUser = new UserModel();
-        fakeUser.setId(1);
+        UserModel inviter = authService.getCurrentUser();
 
         groupUserModel.setGroup(group);
         groupUserModel.setUser(user);
-        groupUserModel.setInviter(fakeUser);
+        groupUserModel.setInviter(inviter);
         groupUserModel.setInvitationExpiresAt(LocalDateTime.now().plusDays(1));
 
         return groupUserRepository.save(groupUserModel);

@@ -25,10 +25,11 @@ public class FileService {
     private final FileHistoryRepository fileHistoryRepository;
     private final UserService userService;
     private final CheckInRepository checkInRepository;
+    private final AuthService authService;
     @Value("${file.storage.location:src/main/resources/static/uploads}")
     private String fileStorageLocation;
 
-    public FileService(FileRepository fileRepository, GroupRepository groupRepository, GroupUserRepository groupUserRepository, GroupFileRepository groupFileRepository, FileHistoryRepository fileHistoryRepository, UserService userService, CheckInRepository checkInRepository) {
+    public FileService(FileRepository fileRepository, GroupRepository groupRepository, GroupUserRepository groupUserRepository, GroupFileRepository groupFileRepository, FileHistoryRepository fileHistoryRepository, UserService userService, CheckInRepository checkInRepository, AuthService authService) {
         this.fileRepository = fileRepository;
         this.groupRepository = groupRepository;
         this.groupUserRepository = groupUserRepository;
@@ -36,6 +37,7 @@ public class FileService {
         this.fileHistoryRepository = fileHistoryRepository;
         this.userService = userService;
         this.checkInRepository = checkInRepository;
+        this.authService = authService;
     }
 
     @Transactional
@@ -49,9 +51,7 @@ public class FileService {
             folders.remove(folders.size() - 1);
         }
         // Check if user in group
-        /* TODO: Replace With Real User */
-        UserModel user = new UserModel();
-        user.setId(3);
+        UserModel user = authService.getCurrentUser();
 
         GroupModel group = groupRepository.findById(groupId).orElse(null);
         if (group == null) {
@@ -117,9 +117,7 @@ public class FileService {
         if (folders.isEmpty()) throw new BadRequestException("Invalid folder tree.");
 
         // Check if user in group
-        /* TODO: Replace With Real User */
-        UserModel user = new UserModel();
-        user.setId(3);
+        UserModel user = authService.getCurrentUser();
 
         GroupModel group = groupRepository.findById(groupId).orElse(null);
         if (group == null) {
@@ -185,8 +183,8 @@ public class FileService {
         // Set a value to addedAt field
         FileModel fileRequest = getFileRequest(fileRequestId);
 
-        /* TODO: Get the real user and check if the admin */
-        UserModel user = userService.getProfile(1);
+        /* TODO: Check if the user is the admin */
+        UserModel user = authService.getCurrentUser();
 
         fileRequest.setAddedAt(LocalDateTime.now());
         fileRepository.save(fileRequest);
@@ -207,8 +205,7 @@ public class FileService {
         List<FileModel> files = fileRepository.findAllByIdInAndAddedAtNotNullAndPathNotNull(filesIds);
         if (files.size() != filesIds.size()) throw new BadRequestException("Some files doesn't exist");
 
-        /* TODO: Get the real user */
-        UserModel user = userService.getProfile(1);
+        UserModel user = authService.getCurrentUser();
 
         List<CheckInModel> checkIns = new ArrayList<>();
         for (FileModel file : files) {
@@ -236,9 +233,19 @@ public class FileService {
         String pathName = file.getPath().split("/uploads/")[1];
         Path filePath = Paths.get(fileStorageLocation).resolve(pathName).normalize();
 
-        /* TODO: Check if user can access th file */
+        /* TODO: Check if user can access the file */
 
         // Load the file as a Resource
         return new UrlResource(filePath.toUri());
+    }
+
+    @Transactional
+    public FileModel getFolder(Integer folderId) throws BadRequestException {
+        FileModel folder = fileRepository.findByIdAndPathIsNullAndAddedAtNotNullAndExtensionIsNull(folderId).orElse(null);
+        if (folder == null) throw new BadRequestException("File not found");
+
+        /* TODO: Check if user can access the folder */
+
+        return folder;
     }
 }

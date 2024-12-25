@@ -49,7 +49,6 @@ public class UserService {
         String email = userData.getEmail();
         String password = passwordEncoder.encode(userData.getPassword());
         UserModel user = userRepository.save(new UserModel(name, username, email, password));
-        /* TODO: Give Him A Token */
         return new HashMap<Object, Object>() {{
             put("token", jwtTokenUtil.generateToken(user.getId()));
             put("model", user);
