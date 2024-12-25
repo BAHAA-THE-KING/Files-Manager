@@ -35,6 +35,11 @@ public class UserService {
     }
 
     @Transactional
+    public UserModel getProfileByUsername(String username) {
+        return userRepository.findUserByUsername(username).orElse(null);
+    }
+
+    @Transactional
     public Map register(RegisterDTO userData) {
         String name = userData.getName();
         String username = userData.getUsername();

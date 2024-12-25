@@ -37,8 +37,4 @@ public class AuthService {
         }});
     }
 
-    public boolean register(String username, String password) {
-        return true;
-    }
-
 }

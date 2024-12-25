@@ -18,9 +18,4 @@ public class AuthController {
     public ResponseEntity login(@Valid @RequestBody LoginDTO loginData) {
         return this.authService.login(loginData.getEmail(), loginData.getPassword());
     }
-
-    @PostMapping(path = "register")
-    public boolean register(@RequestBody String userName) {
-        return this.authService.register(userName, userName);
-    }
 }

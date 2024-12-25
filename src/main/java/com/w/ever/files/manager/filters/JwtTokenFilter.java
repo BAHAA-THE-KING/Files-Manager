@@ -1,4 +1,5 @@
 package com.w.ever.files.manager.filters;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.w.ever.files.manager.models.UserModel;
 import com.w.ever.files.manager.repositories.UserRepository;
@@ -49,7 +50,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
                         if (user != null) {
                             // Use UserDetailsService to load user details for authentication
-                            var userDetails = userDetailsService.loadUserByUsername(user.getUsername());
+                            var userDetails = userDetailsService.loadUserByUsername(user.getEmail());
 
                             // Create authentication token
                             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -80,8 +81,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private void writeErrorOnResponse(HttpServletResponse response) throws IOException {
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getWriter().write(new ObjectMapper().writeValueAsString(new HashMap<String,String>(){{
-            put("message","Unauthenticated.");
+        response.getWriter().write(new ObjectMapper().writeValueAsString(new HashMap<String, String>() {{
+            put("message", "Unauthenticated.");
         }}));
         response.getWriter().flush();
     }
