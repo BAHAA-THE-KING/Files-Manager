@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,8 +31,27 @@ public class UserController {
         return new SuccessResponse(this.userService.register(userData));
     }
 
+    @GetMapping("profile")
+    public ResponseEntity getMyProfile() {
+        String username = null;
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && ((authentication.getPrincipal()) instanceof UserDetails)) {
+            username = ((UserDetails) authentication.getPrincipal()).getUsername();
+        }
+        if (username == null) {
+            return new ErrorResponse(404, "User not found");
+        }
+
+        UserModel userModel = userService.getProfileByUsername(username);
+        if (userModel == null) {
+            return new ErrorResponse(404, "User not found");
+        }
+
+        return new SuccessResponse(userModel);
+    }
+
     @GetMapping("{id}")
-    public ResponseEntity getProfile(@PathVariable @NotNull(message = "User ID cannot be null") Integer id) {
+    public ResponseEntity getUserProfile(@PathVariable @NotNull(message = "User ID cannot be null") Integer id) {
         UserModel userModel = userService.getProfile(id);
         if (userModel == null) {
             return new ErrorResponse(404, "User not found");
