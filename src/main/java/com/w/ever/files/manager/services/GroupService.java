@@ -8,6 +8,7 @@ import com.w.ever.files.manager.models.GroupUserModel;
 import com.w.ever.files.manager.models.UserModel;
 import com.w.ever.files.manager.repositories.GroupRepository;
 import com.w.ever.files.manager.repositories.GroupUserRepository;
+import com.w.ever.files.manager.repositories.UserRepository;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,12 +21,14 @@ public class GroupService {
     private final GroupUserRepository groupUserRepository;
     private final UserService userService;
     private final AuthService authService;
+    private final UserRepository userRepository;
 
-    public GroupService(GroupRepository groupRepository, UserService userService, GroupUserRepository groupUserRepository, AuthService authService) {
+    public GroupService(GroupRepository groupRepository, UserService userService, GroupUserRepository groupUserRepository, AuthService authService, UserRepository userRepository) {
         this.groupRepository = groupRepository;
         this.userService = userService;
         this.groupUserRepository = groupUserRepository;
         this.authService = authService;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -33,7 +36,13 @@ public class GroupService {
         UserModel userModel = userService.getProfile(groupData.getCreator_id());
         if (userModel == null) throw new BadRequestException("Creator Not Found");
         GroupModel groupModel = new GroupModel(groupData.getName(), userModel, groupData.getDescription(), groupData.getColor(), groupData.getLang());
-        return groupRepository.save(groupModel);
+
+        groupRepository.save(groupModel);
+
+        userModel.getOwnedGroups().add(groupModel);
+        userRepository.save(userModel);
+
+        return groupModel;
     }
 
     @Transactional

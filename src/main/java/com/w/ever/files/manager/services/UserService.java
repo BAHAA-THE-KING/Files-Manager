@@ -8,6 +8,8 @@ import com.w.ever.files.manager.repositories.GroupUserRepository;
 import com.w.ever.files.manager.repositories.UserRepository;
 import com.w.ever.files.manager.utiles.JwtTokenUtil;
 import org.apache.coyote.BadRequestException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,7 @@ import java.util.Map;
 
 @Service
 public class UserService {
+    private static final Logger log = LogManager.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final GroupUserRepository groupUserRepository;
     private final JwtTokenUtil jwtTokenUtil;
@@ -65,7 +68,8 @@ public class UserService {
             if (isUsernameUnique(username, id)) {
                 user.setUsername(username);
             } else {
-                throw new BadRequestException("Username is used");
+                log.error("Username is already taken");
+                throw new BadRequestException("Invalid credentials");
             }
         }
         if (userData.getEmail() != null) {

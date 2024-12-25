@@ -18,9 +18,9 @@ public class GroupModel {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "creator_id", nullable = false)
-    private UserModel creator;
+//    @ManyToOne
+//    @JoinColumn(name = "creator_id", nullable = false)
+    private Integer creator;
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<GroupUserModel> joinedUsers = new HashSet<>();
@@ -45,7 +45,7 @@ public class GroupModel {
 
     public GroupModel(String name, UserModel creator, String description, String color, String lang) {
         this.name = name;
-        this.creator = creator;
+        this.creator = creator.getId();
         this.description = description;
         this.color = color;
         this.lang = lang;

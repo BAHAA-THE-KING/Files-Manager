@@ -204,7 +204,7 @@ public class FileService {
     public List<CheckInModel> reserveFiles(List<Integer> filesIds) throws BadRequestException {
         List<FileModel> files = fileRepository.findAllByIdInAndAddedAtNotNullAndPathNotNull(filesIds);
         if (files.size() != filesIds.size()) throw new BadRequestException("Some files doesn't exist");
-        
+
         UserModel user = authService.getCurrentUser();
 
         List<CheckInModel> checkIns = new ArrayList<>();

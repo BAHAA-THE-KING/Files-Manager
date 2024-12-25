@@ -15,19 +15,23 @@ public class Handler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity handleValidationExceptions(MethodArgumentNotValidException ex) {
         List<String> errors = ex.getBindingResult().getFieldErrors().stream().map(FieldError::getDefaultMessage).collect(Collectors.toList());
+        ex.getStackTrace();
         return new ErrorResponse("Validation failed",HttpStatus.UNPROCESSABLE_ENTITY,errors.toArray());
     }
 
     @ExceptionHandler(ErrorResponseException.class)
     public ResponseEntity<?> handleErrorResponse(ErrorResponseException ex) {
+        ex.getStackTrace();
         return new ErrorResponse(ex.getCode(),ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity handleGeneralExceptions(Exception ex) throws Exception {
         if(ex instanceof ErrorResponseException e){
+            ex.getStackTrace();
             return this.handleErrorResponse(e);
         }
+        ex.getStackTrace();
         return new ErrorResponse("Server error",500,ex.getMessage());
     }
 }
