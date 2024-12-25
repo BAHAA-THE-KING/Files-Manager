@@ -19,11 +19,13 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final GroupUserRepository groupUserRepository;
     private final UserService userService;
+    private final AuthService authService;
 
-    public GroupService(GroupRepository groupRepository, UserService userService, GroupUserRepository groupUserRepository) {
+    public GroupService(GroupRepository groupRepository, UserService userService, GroupUserRepository groupUserRepository, AuthService authService) {
         this.groupRepository = groupRepository;
         this.userService = userService;
         this.groupUserRepository = groupUserRepository;
+        this.authService = authService;
     }
 
     @Transactional
@@ -81,13 +83,11 @@ public class GroupService {
         GroupModel group = getGroup(groupId);
         UserModel user = userService.getProfile(userId);
 
-        /* TODO: Replace with real user from token */
-        UserModel fakeUser = new UserModel();
-        fakeUser.setId(1);
+        UserModel inviter = authService.getCurrentUser();
 
         groupUserModel.setGroup(group);
         groupUserModel.setUser(user);
-        groupUserModel.setInviter(fakeUser);
+        groupUserModel.setInviter(inviter);
         groupUserModel.setInvitationExpiresAt(LocalDateTime.now().plusDays(1));
 
         return groupUserRepository.save(groupUserModel);
