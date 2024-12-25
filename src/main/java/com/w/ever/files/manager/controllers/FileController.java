@@ -100,4 +100,10 @@ public class FileController {
         // Respond with the file
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"").body(resource);
     }
+
+    @GetMapping("/files/{folderId}/show")
+    public ResponseEntity showFolder(@Valid @NotNull @PathVariable Integer folderId) throws BadRequestException {
+        FileModel folder = fileService.getFolder(folderId);
+        return new SuccessResponse(folder);
+    }
 }
